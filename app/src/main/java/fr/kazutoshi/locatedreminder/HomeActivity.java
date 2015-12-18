@@ -1,8 +1,6 @@
 package fr.kazutoshi.locatedreminder;
 
 import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -11,8 +9,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.ArrayMap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +19,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 import fr.kazutoshi.locatedreminder.models.AlarmHelper;
@@ -65,7 +60,6 @@ public class HomeActivity extends AppCompatActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         GlobalHelper.setDatabaseHelper(new DatabaseHelper(this));
-
     }
 
     @Override
@@ -100,88 +94,123 @@ public class HomeActivity extends AppCompatActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+    public static class AlarmsFragment extends Fragment {
+      /**
+       * The fragment argument representing the section number for this
+       * fragment.
+       */
+      private static final int CREATE_REMINDER = 0;
 
-        public PlaceholderFragment() {
-        }
+      private boolean updateAlarmsViews = false;
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance() {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            return fragment;
-        }
+	    public void invalidateViews() {
+		    updateAlarmsViews = true;
+	    }
 
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_home, container, false);
-            rootView.findViewById(R.id.newAlarmButton).setOnClickListener(
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent intent = new Intent(getActivity(), CreateReminderActivity.class);
-                            startActivity(intent);
-                        }
-                    });
+      public AlarmsFragment() {
+      }
 
-            final LinearLayout layout = (LinearLayout) rootView.findViewById(R.id.listAlarms);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    layout.removeAllViews();
+      /**
+       * Returns a new instance of this fragment for the given section
+       * number.
+       */
+      public static AlarmsFragment newInstance() {
+          AlarmsFragment fragment = new AlarmsFragment();
+          return fragment;
+      }
 
-                    ArrayList<AlarmHelper> alarms = AlarmHelper.getAllAlarms();
-
-                    for (final AlarmHelper alarm : alarms) {
-                        final LinearLayout alarmLayout = new LinearLayout(getActivity());
-                        alarmLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT));
-                        alarmLayout.setOrientation(LinearLayout.HORIZONTAL);
-                        TextView alarmView = new TextView(getActivity());
-                        alarmView.setText("x: " + alarm.getLocationX() + " ; y: " +
-                                alarm.getLocationY() + " ;\nradius: " + alarm.getRadius());
-	                      Button enabledButton = new Button(getActivity());
-	                      enabledButton.setText(alarm.isEnabled() ? "ON" : "OFF");
-	                      enabledButton.setOnClickListener(new View.OnClickListener() {
-		                      @Override
-		                      public void onClick(View v) {
-			                      Button button = (Button) v;
-			                      if (alarm.isEnabled())
-				                      button.setText("OFF");
-			                      else
-				                      button.setText("ON");
-			                      alarm.toggle();
-		                      }
-	                      });
-                        Button removeButton = new Button(getActivity());
-                        removeButton.setText("X");
-                        removeButton.setOnClickListener(new View.OnClickListener() {
-	                        @Override
-	                        public void onClick(View v) {
-		                        alarm.delete();
-		                        layout.removeView(alarmLayout);
-	                        }
-                        });
-                        alarmLayout.addView(alarmView);
-		                    alarmLayout.addView(enabledButton);
-		                    alarmLayout.addView(removeButton);
-                        layout.addView(alarmLayout);
+      @Override
+      public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                               Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_home, container, false);
+        rootView.findViewById(R.id.newAlarmButton).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(getActivity(), CreateReminderActivity.class);
+                        startActivityForResult(intent, CREATE_REMINDER);
                     }
-                }
-            });
-            return rootView;
-        }
+                });
+        loadAlarms(rootView);
+        return rootView;
+      }
 
-        private void runOnUiThread(Runnable runnable) {
+	    @Override
+	    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		    if (requestCode == CREATE_REMINDER) {
+			    if (resultCode == RESULT_OK) {
+				    if (data.getBooleanExtra("UPDATE_VIEWS", false)) {
+					    invalidateViews();
+				    }
+			    }
+		    }
+	    }
+
+	    @Override
+	    public void onResume() {
+		    super.onResume();
+		    if (updateAlarmsViews) {
+			    updateAlarmsViews = false;
+			    loadAlarms(getView());
+		    }
+	    }
+
+	    private void loadAlarms(View rootView) {
+		    final LinearLayout layout = (LinearLayout) rootView.findViewById(R.id.listAlarms);
+		    runOnUiThread(new Runnable() {
+			    @Override
+			    public void run() {
+				    layout.removeAllViews();
+
+				    HashSet<AlarmHelper> alarms = AlarmHelper.getAllAlarms();
+
+				    for (final AlarmHelper alarm : alarms) {
+					    final LinearLayout alarmLayout = new LinearLayout(getActivity());
+					    alarmLayout.setLayoutParams(new LinearLayout.LayoutParams(
+									    ViewGroup.LayoutParams.MATCH_PARENT,
+									    ViewGroup.LayoutParams.WRAP_CONTENT));
+					    alarmLayout.setOrientation(LinearLayout.VERTICAL);
+					    TextView alarmView = new TextView(getActivity());
+					    alarmView.setText(alarm.getName());
+					    LinearLayout buttonsLayout = new LinearLayout(getActivity());
+					    buttonsLayout.setLayoutParams(new LinearLayout.LayoutParams(
+									    ViewGroup.LayoutParams.MATCH_PARENT,
+									    ViewGroup.LayoutParams.WRAP_CONTENT
+					    ));
+					    buttonsLayout.setOrientation(LinearLayout.HORIZONTAL);
+					    Button enabledButton = new Button(getActivity());
+					    enabledButton.setText(alarm.isEnabled() ? "ON" : "OFF");
+					    enabledButton.setOnClickListener(new View.OnClickListener() {
+						    @Override
+						    public void onClick(View v) {
+							    Button button = (Button) v;
+							    if (alarm.isEnabled())
+								    button.setText("OFF");
+							    else
+								    button.setText("ON");
+							    alarm.toggle();
+						    }
+					    });
+					    Button removeButton = new Button(getActivity());
+					    removeButton.setText("X");
+					    removeButton.setOnClickListener(new View.OnClickListener() {
+						    @Override
+						    public void onClick(View v) {
+							    alarm.delete();
+							    layout.removeView(alarmLayout);
+						    }
+					    });
+					    buttonsLayout.addView(enabledButton);
+					    buttonsLayout.addView(removeButton);
+					    alarmLayout.addView(alarmView);
+					    alarmLayout.addView(buttonsLayout);
+					    layout.addView(alarmLayout);
+				    }
+			    }
+		    });
+	    }
+
+      private void runOnUiThread(Runnable runnable) {
             getActivity().runOnUiThread(runnable);
         }
     }
@@ -199,8 +228,8 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance();
+            // Return a AlarmsFragment (defined as a static inner class below).
+            return AlarmsFragment.newInstance();
         }
 
         @Override

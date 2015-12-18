@@ -20,6 +20,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     static final String deletedAtField = "deleted_at";
 
     static final String alarmsTable = "alarms";
+    static final String alarmName = "name";
     static final String alarmLocationX = "location_x";
     static final String alarmLocationY = "location_y";
     static final String alarmRadius = "radius";
@@ -75,6 +76,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 createdAtField + " DATETIME DEFAULT CURRENT_TIMESTAMP, " +
                 updatedAtField + " DATETIME, " +
                 deletedAtField + " DATETIME, " +
+                alarmName + " VARCHAR(255), " +
                 alarmLocationX + " INTEGER, " +
                 alarmLocationY + " INTEGER, " +
                 alarmRadius + " INTEGER, " +

@@ -31,7 +31,6 @@ public class LocatedReminderService extends Service {
   public LocationManager locationManager;
   public LocationListener listener;
   public Location oldLocation;
-	private static ArrayList<AlarmHelper> alarms;
 
   Intent intent;
 
@@ -40,7 +39,7 @@ public class LocatedReminderService extends Service {
     super.onCreate();
     Log.d("locatedreminder", "create service");
 	  GlobalHelper.setDatabaseHelper(new DatabaseHelper(this));
-	  alarms = AlarmHelper.getAllAlarms();
+	  AlarmHelper.loadAlarms();
     intent = new Intent(BROADCAST_ACTION);
   }
 
@@ -108,15 +107,6 @@ public class LocatedReminderService extends Service {
   }
 
 
-	public static void addAlarm(AlarmHelper alarm) {
-		alarms.add(alarm);
-	}
-
-	public static void removeAlarm(AlarmHelper alarm) {
-		alarms.remove(alarm);
-	}
-
-
 
 	private static double distance(double lat1, double lon1, double lat2, double lon2) {
 		double theta = lon1 - lon2;
@@ -138,16 +128,17 @@ public class LocatedReminderService extends Service {
 
 
 
+
   public class LocationListener implements android.location.LocationListener {
 
     @Override
-    public void onLocationChanged(Location location) {
+    public synchronized void onLocationChanged(Location location) {
       /*intent.putExtra("Latitude", location.getLatitude());
       intent.putExtra("Longitude", location.getLongitude());
       intent.putExtra("Provider", location.getProvider());
       sendBroadcast(intent);*/
-      for (AlarmHelper alarm : alarms) {
-	      if (distance(alarm.getLocationX(), alarm.getLocationY(),
+      for (AlarmHelper alarm : AlarmHelper.getAllAlarms()) {
+	      if (alarm.isEnabled() && distance(alarm.getLocationX(), alarm.getLocationY(),
 					      location.getLatitude(), location.getLongitude()) <= alarm.getRadius()) {
 		      NotificationManager notificationManager =
 						      (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -158,12 +149,12 @@ public class LocatedReminderService extends Service {
 						      new NotificationCompat.Builder(LocatedReminderService.this)
 										      .setSmallIcon(R.drawable.notification_template_icon_bg)
 										      .setContentTitle("New Reminder")
-										      .setContentText("NEW REMINDEUUUUUR")
+										      .setContentText(alarm.getName())
 										      .setContentIntent(pendingIntent);
 		      notificationManager.notify(0, builder.build());
 		      Vibrator v = (Vibrator) LocatedReminderService.this.getSystemService(VIBRATOR_SERVICE);
 		      v.vibrate(500);
-		      alarms.remove(alarm);
+		      alarm.off().save();
 	      }
       }
     }
