@@ -65,21 +65,26 @@ public class MapFragment extends Fragment {
         googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
-                if (marker != null) {
-                    marker.remove();
-                    radiusCircle.remove();
-                }
-                marker = googleMap.addMarker(
-                        new MarkerOptions().position(latLng).title("Test marker"));
-                radiusCircle = googleMap.addCircle(
-                        new CircleOptions().center(latLng).radius(radius)
-                                .strokeColor(Color.argb(255, 66, 92, 151))
-                                .fillColor(Color.argb(30, 66, 92, 151))
-                                .strokeWidth(2));
+	            setMarkerLocation(latLng);
             }
         });
 
         return v;
+    }
+
+    public void setMarkerLocation(LatLng latLng) {
+        if (marker != null) {
+            marker.remove();
+            radiusCircle.remove();
+        }
+        marker = googleMap.addMarker(
+                new MarkerOptions().position(latLng));
+	      centerOnLatLng(latLng);
+        radiusCircle = googleMap.addCircle(
+                new CircleOptions().center(latLng).radius(radius)
+                        .strokeColor(Color.argb(255, 66, 92, 151))
+                        .fillColor(Color.argb(30, 66, 92, 151))
+                        .strokeWidth(2));
     }
 
     private void locate(Location location) {
@@ -90,6 +95,12 @@ public class MapFragment extends Fragment {
                 initialized = true;
             }
     }
+
+		public MapFragment centerOnLatLng(LatLng latLng) {
+			if (latLng != null)
+				googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+			return this;
+		}
 
     @Override
     public void onResume() {

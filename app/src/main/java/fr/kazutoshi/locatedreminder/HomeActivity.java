@@ -24,6 +24,7 @@ import java.util.HashSet;
 import fr.kazutoshi.locatedreminder.models.AlarmHelper;
 import fr.kazutoshi.locatedreminder.models.DatabaseHelper;
 import fr.kazutoshi.locatedreminder.models.GlobalHelper;
+import fr.kazutoshi.locatedreminder.view.AlarmView;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -69,12 +70,12 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_home, menu);
-        return true;
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.menu_home, menu);
+		return true;
+	}
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -165,7 +166,7 @@ public class HomeActivity extends AppCompatActivity {
 				    HashSet<AlarmHelper> alarms = AlarmHelper.getAllAlarms();
 
 				    for (final AlarmHelper alarm : alarms) {
-					    final LinearLayout alarmLayout = new LinearLayout(getActivity());
+					    /*final LinearLayout alarmLayout = new LinearLayout(getActivity());
 					    alarmLayout.setLayoutParams(new LinearLayout.LayoutParams(
 									    ViewGroup.LayoutParams.MATCH_PARENT,
 									    ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -204,7 +205,12 @@ public class HomeActivity extends AppCompatActivity {
 					    buttonsLayout.addView(removeButton);
 					    alarmLayout.addView(alarmView);
 					    alarmLayout.addView(buttonsLayout);
-					    layout.addView(alarmLayout);
+					    layout.addView(alarmLayout);*/
+					    AlarmView alarmView = new AlarmView(getActivity(), alarm);
+					    alarmView.setLayoutParams(new LinearLayout.LayoutParams(
+									    LinearLayout.LayoutParams.MATCH_PARENT,
+									    LinearLayout.LayoutParams.WRAP_CONTENT));
+              layout.addView(alarmView);
 				    }
 			    }
 		    });

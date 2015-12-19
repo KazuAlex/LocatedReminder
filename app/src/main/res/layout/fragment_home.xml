@@ -10,7 +10,7 @@
         android:id="@+id/newAlarmButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="New Button"
+        android:text="Ajouter une alarme"
         android:layout_alignParentBottom="true" />
 
     <ScrollView

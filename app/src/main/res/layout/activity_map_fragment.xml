@@ -41,15 +41,15 @@
     <RelativeLayout
         android:id="@+id/reminderOptions"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:layout_above="@+id/buttons">
 
         <ScrollView
             android:id="@+id/reminderOptionsScrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            android:background="#ffffff"
-            android:layout_above="@+id/dropdownReminderOptions">
+            android:background="#ffffff">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -70,13 +70,6 @@
             </LinearLayout>
 
         </ScrollView>
-
-        <LinearLayout
-            android:id="@+id/dropdownReminderOptions"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:orientation="horizontal"
-            android:background="#cccccc" />
 
     </RelativeLayout>
 
