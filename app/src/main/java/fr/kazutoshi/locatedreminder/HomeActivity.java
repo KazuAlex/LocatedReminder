@@ -210,6 +210,15 @@ public class HomeActivity extends AppCompatActivity {
 					    alarmView.setLayoutParams(new LinearLayout.LayoutParams(
 									    LinearLayout.LayoutParams.MATCH_PARENT,
 									    LinearLayout.LayoutParams.WRAP_CONTENT));
+						alarmView.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								Intent intent = new Intent(
+										getActivity(), CreateReminderActivity.class);
+								intent.putExtra("ALARM_ID", alarm.getId());
+								startActivityForResult(intent, CREATE_REMINDER);
+							}
+						});
               layout.addView(alarmView);
 				    }
 			    }

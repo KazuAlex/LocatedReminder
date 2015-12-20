@@ -27,6 +27,7 @@ import fr.kazutoshi.locatedreminder.models.AlarmHelper;
  */
 public class MapFragment extends Fragment {
     MapView mapView;
+    private AlarmHelper alarm;
     private GoogleMap googleMap;
     private Marker marker;
     private Circle radiusCircle;
@@ -35,10 +36,10 @@ public class MapFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savecInstanceState) {
+                             Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.activity_map_fragment, container, false);
         mapView = (MapView) v.findViewById(R.id.mapView);
-        mapView.onCreate(savecInstanceState);
+        mapView.onCreate(savedInstanceState);
         mapView.onResume();
 
         marker = null;
@@ -55,12 +56,7 @@ public class MapFragment extends Fragment {
                 (LocationManager)getActivity().getSystemService(Context.LOCATION_SERVICE);
         Location location = manager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         locate(location);
-        /*googleMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
-            @Override
-            public void onMyLocationChange(Location location) {
-                locate(location);
-            }
-        });*/
+
         radius = 20;
         googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
@@ -68,6 +64,11 @@ public class MapFragment extends Fragment {
 	            setMarkerLocation(latLng);
             }
         });
+
+        if (alarm != null) {
+            radius = alarm.getRadius();
+            setMarkerLocation(new LatLng(alarm.getLocationX(), alarm.getLocationY()));
+        }
 
         return v;
     }
@@ -154,6 +155,16 @@ public class MapFragment extends Fragment {
                 radius += changechange;
             radiusCircle.setRadius(radius);
         }
+        return this;
+    }
+
+    public MapFragment setAlarm(AlarmHelper alarm) {
+        if (alarm != null) {
+            this.alarm = alarm;
+            /*radius = alarm.getRadius();
+            setMarkerLocation(new LatLng(alarm.getLocationX(), alarm.getLocationY()));*/
+        }
+
         return this;
     }
 }

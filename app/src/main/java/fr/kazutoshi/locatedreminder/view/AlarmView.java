@@ -45,7 +45,7 @@ public class AlarmView extends LinearLayout {
 		toggleEnabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				alarm.setEnabled(isChecked);
+				alarm.setEnabled(isChecked).save();
 			}
 		});
 

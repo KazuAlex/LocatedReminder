@@ -31,12 +31,20 @@ import fr.kazutoshi.locatedreminder.models.AlarmHelper;
 public class CreateReminderActivity extends AppCompatActivity {
 
   private MapFragment fragment;
+  private AlarmHelper alarm;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_map_fragment);
-    addMapFragment();
+	if (getIntent().hasExtra("ALARM_ID")) {
+	  alarm = AlarmHelper.getFromId(getIntent().getLongExtra("ALARM_ID", 0));
+	  if (alarm != null) {
+	    EditText editTextName = (EditText) findViewById(R.id.alarmName);
+	    editTextName.setText(alarm.getRawName());
+	  }
+	}
+    addMapFragment(alarm);
 
     findViewById(R.id.addReminderButton).setOnClickListener(new View.OnClickListener() {
 	    @Override
@@ -45,9 +53,16 @@ public class CreateReminderActivity extends AppCompatActivity {
 		    if (marker != null) {
 			    LatLng latLng = marker.getPosition();
 			    EditText editTextName = (EditText) findViewById(R.id.alarmName);
-			    Log.d("locatedreminder", "name : " + editTextName.getText().toString());
-			    new AlarmHelper(-1, editTextName.getText().toString(), latLng.latitude, latLng.longitude,
-							    fragment.getRadius(), true).save();
+				if (alarm == null) {
+					alarm = new AlarmHelper(-1, editTextName.getText().toString(), latLng.latitude, latLng.longitude,
+							fragment.getRadius(), true).save();
+				} else {
+					alarm.setName(editTextName.getText().toString())
+							.setLocationX(latLng.latitude)
+							.setLocationY(latLng.longitude)
+							.setRadius(fragment.getRadius())
+							.save();
+				}
 		    }
 		    finish();
 	    }
@@ -67,6 +82,16 @@ public class CreateReminderActivity extends AppCompatActivity {
       }
     });
   }
+
+	private void addMapFragment(AlarmHelper alarm) {
+		FragmentManager manager = getSupportFragmentManager();
+		FragmentTransaction transaction = manager.beginTransaction();
+		fragment = new MapFragment();
+		transaction.add(R.id.mapView, fragment);
+		transaction.commit();
+		if (alarm != null)
+			fragment.setAlarm(alarm);
+	}
 
 
 	@Override
@@ -139,14 +164,6 @@ public class CreateReminderActivity extends AppCompatActivity {
 
 		return super.onOptionsItemSelected(item);
 	}
-
-  private void addMapFragment() {
-    FragmentManager manager = getSupportFragmentManager();
-    FragmentTransaction transaction = manager.beginTransaction();
-    fragment = new MapFragment();
-    transaction.add(R.id.mapView, fragment);
-    transaction.commit();
-  }
 
 	public void finish() {
 		Intent data = new Intent();

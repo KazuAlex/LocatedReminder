@@ -28,8 +28,8 @@ public class AlarmHelper extends GlobalHelper {
   private double radius;
   private Date date;
   private boolean on;
-	private HashSet<EnabledListener> enabledListeners;
-	private HashSet<RemoveListener> removedListeners;
+  private HashSet<EnabledListener> enabledListeners;
+  private HashSet<RemoveListener> removedListeners;
 
 
   public AlarmHelper(long id, String name, double locationX, double locationY, double radius, int on) {
@@ -55,6 +55,10 @@ public class AlarmHelper extends GlobalHelper {
   public String getName() {
     if (name.length() == 0)
 	    return "not named alarm";
+    return name;
+  }
+
+  public String getRawName() {
     return name;
   }
 
@@ -102,12 +106,12 @@ public class AlarmHelper extends GlobalHelper {
     return this;
   }
 
-  public AlarmHelper setLocationX(int locationX) {
+  public AlarmHelper setLocationX(double locationX) {
     this.locationX = locationX;
     return this;
   }
 
-  public AlarmHelper setLocationY(int locationY) {
+  public AlarmHelper setLocationY(double locationY) {
     this.locationY = locationY;
     return this;
   }
@@ -159,33 +163,48 @@ public class AlarmHelper extends GlobalHelper {
 	}
 
 
+
+  public static AlarmHelper getFromId(long id) {
+    if (id <= 0)
+      return null;
+
+    if (alarmInstances.size() == 0)
+      loadAlarms();
+
+    for (AlarmHelper alarm : alarmInstances)
+      if (alarm.getId() == id)
+        return alarm;
+
+    return null;
+  }
+
 	public static void loadAlarms() {
-		Cursor cur = dbHelper.getReadableDatabase().rawQuery(
-						"SELECT " + DatabaseHelper.idField + " , " + DatabaseHelper.alarmName + ", " +
-										DatabaseHelper.alarmLocationX + ", " + DatabaseHelper.alarmLocationY + ", " +
-										DatabaseHelper.alarmRadius + ", " + DatabaseHelper.alarmEnabled +
-										" FROM " + DatabaseHelper.alarmsTable +
-										" WHERE " + DatabaseHelper.deletedAtField + " IS NULL",
-						new String[] {});
+      Cursor cur = dbHelper.getReadableDatabase().rawQuery(
+                      "SELECT " + DatabaseHelper.idField + " , " + DatabaseHelper.alarmName + ", " +
+                                      DatabaseHelper.alarmLocationX + ", " + DatabaseHelper.alarmLocationY + ", " +
+                                      DatabaseHelper.alarmRadius + ", " + DatabaseHelper.alarmEnabled +
+                                      " FROM " + DatabaseHelper.alarmsTable +
+                                      " WHERE " + DatabaseHelper.deletedAtField + " IS NULL",
+                      new String[] {});
 
-		if (cur == null)
-			return;
+      if (cur == null)
+          return;
 
-		while (cur.moveToNext()) {
-			alarmInstances.add(new AlarmHelper(cur.getLong(cur.getColumnIndex(DatabaseHelper.idField)),
-							cur.getString(cur.getColumnIndex(DatabaseHelper.alarmName)),
-							cur.getDouble(cur.getColumnIndex(DatabaseHelper.alarmLocationX)),
-							cur.getDouble(cur.getColumnIndex(DatabaseHelper.alarmLocationY)),
-							cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmRadius)),
-							cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmEnabled))));
-		}
+      while (cur.moveToNext()) {
+          alarmInstances.add(new AlarmHelper(cur.getLong(cur.getColumnIndex(DatabaseHelper.idField)),
+                          cur.getString(cur.getColumnIndex(DatabaseHelper.alarmName)),
+                          cur.getDouble(cur.getColumnIndex(DatabaseHelper.alarmLocationX)),
+                          cur.getDouble(cur.getColumnIndex(DatabaseHelper.alarmLocationY)),
+                          cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmRadius)),
+                          cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmEnabled))));
+      }
 
-		cur.close();
+      cur.close();
 	}
 
     public static HashSet<AlarmHelper> getAllAlarms() {
-			if (alarmInstances.size() == 0)
-				loadAlarms();
+      if (alarmInstances.size() == 0)
+          loadAlarms();
 
       return alarmInstances;
     }
