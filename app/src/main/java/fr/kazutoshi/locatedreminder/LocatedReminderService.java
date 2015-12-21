@@ -148,12 +148,24 @@ public class LocatedReminderService extends Service {
 		      NotificationCompat.Builder builder =
 						      new NotificationCompat.Builder(LocatedReminderService.this)
 										      .setSmallIcon(R.drawable.notification_template_icon_bg)
-										      .setContentTitle("New Reminder")
+										      .setContentTitle("Alarme")
 										      .setContentText(alarm.getName())
 										      .setContentIntent(pendingIntent);
 		      notificationManager.notify(0, builder.build());
 		      Vibrator v = (Vibrator) LocatedReminderService.this.getSystemService(VIBRATOR_SERVICE);
-		      v.vibrate(500);
+			      for (int i = 0; i < alarm.getVibrationRepeatCount(); i++) {
+				      v.vibrate(new long[]{
+								      0,
+								      alarm.getVibrationLength() * 100,
+								      alarm.getVibrationLength() * 100
+				      }, -1);
+				      try {
+					      synchronized (v) {
+					        v.wait(alarm.getVibrationLength() * 100 * 2);
+					      }
+				      } catch (InterruptedException e) {
+				      }
+			      }
 		      alarm.off().save();
 	      }
       }

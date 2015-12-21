@@ -28,6 +28,7 @@ public class AlarmHelper extends GlobalHelper {
   private double radius;
   private Date date;
   private boolean on;
+  private AlarmSettingHelper settings;
   private HashSet<EnabledListener> enabledListeners;
   private HashSet<RemoveListener> removedListeners;
 
@@ -43,6 +44,10 @@ public class AlarmHelper extends GlobalHelper {
     this.locationY = locationY;
     this.radius = radius;
     this.on = on;
+
+	  this.settings = AlarmSettingHelper.getFromAlarmId(getId());
+	  if (settings == null)
+		  settings = new AlarmSettingHelper(-1, getId(), 1, 1);
 
 	  enabledListeners = new HashSet<>();
 	  removedListeners = new HashSet<>();
@@ -98,6 +103,14 @@ public class AlarmHelper extends GlobalHelper {
       return date != null;
   }
 
+	public int getVibrationLength() {
+		return settings.getVibrationLength();
+	}
+
+	public int getVibrationRepeatCount() {
+		return settings.getVibrationRepeatCount();
+	}
+
 
 
   /** SETTERS */
@@ -148,6 +161,17 @@ public class AlarmHelper extends GlobalHelper {
     return this;
   }
 
+	public AlarmHelper setVibrationLength(int vibrationLength) {
+		settings.setVibrationLength(vibrationLength);
+		return this;
+	}
+
+	public AlarmHelper setVibrationRepeatCount(int vibrationRepeatCount) {
+		settings.setVibrationRepeatCount(vibrationRepeatCount);
+		return this;
+	}
+
+
 
 	/* LISTENERS */
 	public AlarmHelper addEnabledListener(EnabledListener listener) {
@@ -191,60 +215,63 @@ public class AlarmHelper extends GlobalHelper {
           return;
 
       while (cur.moveToNext()) {
-          alarmInstances.add(new AlarmHelper(cur.getLong(cur.getColumnIndex(DatabaseHelper.idField)),
-                          cur.getString(cur.getColumnIndex(DatabaseHelper.alarmName)),
-                          cur.getDouble(cur.getColumnIndex(DatabaseHelper.alarmLocationX)),
-                          cur.getDouble(cur.getColumnIndex(DatabaseHelper.alarmLocationY)),
-                          cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmRadius)),
-                          cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmEnabled))));
+          new AlarmHelper(cur.getLong(cur.getColumnIndex(DatabaseHelper.idField)),
+                      cur.getString(cur.getColumnIndex(DatabaseHelper.alarmName)),
+                      cur.getDouble(cur.getColumnIndex(DatabaseHelper.alarmLocationX)),
+                      cur.getDouble(cur.getColumnIndex(DatabaseHelper.alarmLocationY)),
+                      cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmRadius)),
+                      cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmEnabled)));
       }
 
       cur.close();
 	}
 
-    public static HashSet<AlarmHelper> getAllAlarms() {
-      if (alarmInstances.size() == 0)
-          loadAlarms();
+  public static HashSet<AlarmHelper> getAllAlarms() {
+    if (alarmInstances.size() == 0)
+      loadAlarms();
 
-      return alarmInstances;
+    return alarmInstances;
+  }
+
+
+  public AlarmHelper save() {
+    if (getId() < 0) {
+      ContentValues values = new ContentValues();
+      values.put(DatabaseHelper.createdAtField,
+              getCreatedAt() == null ? null : getCreatedAt().toString());
+      values.put(DatabaseHelper.updatedAtField,
+              getUpdatedAt() == null ? null : getUpdatedAt().toString());
+      values.put(DatabaseHelper.deletedAtField,
+              getDeletedAt() == null ? null : getDeletedAt().toString());
+      values.put(DatabaseHelper.alarmName, getName());
+      values.put(DatabaseHelper.alarmLocationX, getLocationX());
+      values.put(DatabaseHelper.alarmLocationY, getLocationY());
+      values.put(DatabaseHelper.alarmRadius, getRadius());
+      values.put(DatabaseHelper.alarmDate, getDate() == null ? null : getDate().toString());
+      values.put(DatabaseHelper.alarmEnabled, isEnabled() ? "1" : "0");
+      setId(dbHelper.getWritableDatabase().insert(DatabaseHelper.alarmsTable, null, values));
+	    settings.save();
+    } else if (getId() > 0) {
+      ContentValues values = new ContentValues();
+      values.put(DatabaseHelper.alarmName, getName());
+      values.put(DatabaseHelper.alarmLocationX, getLocationX());
+      values.put(DatabaseHelper.alarmLocationY, getLocationY());
+      values.put(DatabaseHelper.alarmRadius, getRadius());
+      values.put(DatabaseHelper.alarmDate, getDate() == null ? null : getDate().toString());
+      values.put(DatabaseHelper.alarmEnabled, isEnabled() ? "1" : "0");
+      dbHelper.getWritableDatabase().update(DatabaseHelper.alarmsTable, values,
+				      DatabaseHelper.idField + " = ?", new String[]{String.valueOf(getId())});
+	    settings.save();
     }
-
-
-    public AlarmHelper save() {
-      if (getId() < 0) {
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.createdAtField,
-                getCreatedAt() == null ? null : getCreatedAt().toString());
-        values.put(DatabaseHelper.updatedAtField,
-                getUpdatedAt() == null ? null : getUpdatedAt().toString());
-        values.put(DatabaseHelper.deletedAtField,
-                getDeletedAt() == null ? null : getDeletedAt().toString());
-        values.put(DatabaseHelper.alarmName, getName());
-        values.put(DatabaseHelper.alarmLocationX, getLocationX());
-        values.put(DatabaseHelper.alarmLocationY, getLocationY());
-        values.put(DatabaseHelper.alarmRadius, getRadius());
-        values.put(DatabaseHelper.alarmDate, getDate() == null ? null : getDate().toString());
-        values.put(DatabaseHelper.alarmEnabled, isEnabled() ? "1" : "0");
-        setId(dbHelper.getWritableDatabase().insert(DatabaseHelper.alarmsTable, null, values));
-      } else if (getId() > 0) {
-        ContentValues values = new ContentValues();
-        values.put(DatabaseHelper.alarmName, getName());
-        values.put(DatabaseHelper.alarmLocationX, getLocationX());
-        values.put(DatabaseHelper.alarmLocationY, getLocationY());
-        values.put(DatabaseHelper.alarmRadius, getRadius());
-        values.put(DatabaseHelper.alarmDate, getDate() == null ? null : getDate().toString());
-        values.put(DatabaseHelper.alarmEnabled, isEnabled() ? "1" : "0");
-        dbHelper.getWritableDatabase().update(DatabaseHelper.alarmsTable, values,
-                DatabaseHelper.idField + " = ?", new String[] { String.valueOf( getId() ) });
-      }
-      return this;
-    }
+    return this;
+  }
 
   public void delete() {
     if (getId() > 0) {
 	    alarmInstances.remove(this);
 	    dbHelper.getWritableDatabase().delete(DatabaseHelper.alarmsTable,
 					    DatabaseHelper.idField + " = ?", new String[]{String.valueOf(getId())});
+	    settings.delete();
 	    for (RemoveListener listener : removedListeners)
 		    listener.onRemove();
     }
