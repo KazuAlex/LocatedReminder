@@ -160,11 +160,7 @@ public class CreateReminderActivity extends AppCompatActivity {
 			reminderOptions.setY(-reminderOptions.getHeight());
 			reminderOptions.setVisibility(View.VISIBLE);
 
-			reminderOptions.animate().setListener(new AnimatorListenerAdapter() {
-				@Override
-				public void onAnimationEnd(Animator animation) {
-				}
-			}).translationY(0);
+			reminderOptions.animate().translationY(0);
 		}
 	}
 
