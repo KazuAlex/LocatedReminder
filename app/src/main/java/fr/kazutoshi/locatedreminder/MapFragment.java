@@ -1,6 +1,7 @@
 package fr.kazutoshi.locatedreminder;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
@@ -21,6 +22,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import fr.kazutoshi.locatedreminder.models.AlarmHelper;
+import fr.kazutoshi.locatedreminder.models.SettingHelper;
 
 /**
  * Created by Alex on 14/12/2015.
@@ -33,6 +35,34 @@ public class MapFragment extends Fragment {
   private Circle radiusCircle;
   private boolean initialized = false;
   private double radius;
+
+  private static class Popup {
+
+    private final static String REMOVE_ITEM = "Supprimer";
+
+    private static android.support.v7.app.AlertDialog.Builder dialog;
+
+    public static void MarkerOptions(Context context, final Marker marker, final Circle circle) {
+      if (dialog == null)
+        dialog = new android.support.v7.app.AlertDialog.Builder(context);
+
+      final CharSequence[] items = new CharSequence[] {
+              REMOVE_ITEM
+      };
+
+      dialog.setTitle("Options").setItems(items, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          if (items[which].equals(REMOVE_ITEM)) {
+            marker.remove();
+            circle.remove();
+          }
+        }
+      });
+
+    }
+
+  }
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -86,10 +116,17 @@ public class MapFragment extends Fragment {
         new MarkerOptions().position(latLng));
     centerOnLatLng(latLng, zoom);
 
+	  String strokeColor = SettingHelper.getSettingValue("mapCircleStrokeColor");
+	  if (strokeColor == null)
+		  strokeColor = "FF425C97";
+	  String fillColor = SettingHelper.getSettingValue("mapCircleFillColor");
+	  if (fillColor == null)
+		  fillColor = "1E425C97";
+
     radiusCircle = googleMap.addCircle(
           new CircleOptions().center(latLng).radius(radius)
-                .strokeColor(Color.argb(255, 66, 92, 151))
-                .fillColor(Color.argb(30, 66, 92, 151))
+                .strokeColor(Color.parseColor("#" + strokeColor))
+                .fillColor(Color.parseColor("#" + fillColor))
                 .strokeWidth(2));
   }
 

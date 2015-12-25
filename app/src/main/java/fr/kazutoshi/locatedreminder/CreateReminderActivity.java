@@ -17,13 +17,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -43,44 +39,47 @@ public class CreateReminderActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_map_fragment);
-		if (getIntent().hasExtra("ALARM_ID")) {
-			RelativeLayout reminderOptions = (RelativeLayout) findViewById(R.id.reminderOptions);
-			alarm = AlarmHelper.getFromId(getIntent().getLongExtra("ALARM_ID", 0));
-			Log.d("locatedreminder", "alarm_id : " + alarm.getId());
-			if (alarm != null) {
-				Log.d("locatedreminder", "alarm != null on create");
-				reminderOptions.setVisibility(View.VISIBLE);
-				EditText editTextName = (EditText) findViewById(R.id.alarmName);
-				editTextName.setText(alarm.getRawName(), EditText.BufferType.EDITABLE);
-				reminderOptions.setVisibility(View.GONE);
-			}
-		}
+
+
+	  if (getIntent().hasExtra("ALARM_ID"))
+		  alarm = AlarmHelper.getFromId(getIntent().getLongExtra("ALARM_ID", 0));
+
     addMapFragment(alarm);
 
-		optionsIsShowing = true;
-
-		if (alarm != null) {
-		}
+		optionsIsShowing = false;
 
     findViewById(R.id.addReminderButton).setOnClickListener(new View.OnClickListener() {
 	    @Override
 	    public void onClick(View v) {
-		    Marker marker = fragment.getMarker();
-		    if (marker != null) {
-			    LatLng latLng = marker.getPosition();
-			    EditText editTextName = (EditText) findViewById(R.id.alarmName);
-					if (alarm == null) {
-						alarm = new AlarmHelper(-1, editTextName.getText().toString(), latLng.latitude, latLng.longitude,
-								fragment.getRadius(), true).save();
-					} else {
-						alarm.setName(editTextName.getText().toString())
-								.setLocationX(latLng.latitude)
-								.setLocationY(latLng.longitude)
-								.setRadius(fragment.getRadius())
-								.save();
-					}
-		    }
-		    finish();
+	    Marker marker = fragment.getMarker();
+	    if (marker != null) {
+		    LatLng latLng = marker.getPosition();
+		    EditText editTextName = (EditText) findViewById(R.id.alarmName);
+		    EditText editTextVibrationLength =
+						    (EditText) findViewById(R.id.alarmVibrationLength);
+		    EditText editTextVibrationRepeatCount =
+						    (EditText) findViewById(R.id.alarmVibrationRepeatCount);
+				if (alarm == null) {
+					alarm = new AlarmHelper(-1, editTextName.getText().toString(),
+									latLng.latitude, latLng.longitude,
+									fragment.getRadius(), true)
+									.setVibrationLength(Integer.valueOf(editTextVibrationLength.getText().toString()))
+									.setVibrationRepeatCount(
+													Integer.valueOf(editTextVibrationRepeatCount.getText().toString()))
+									.save();
+				} else {
+					alarm.setName(editTextName.getText().toString())
+									.setLocationX(latLng.latitude)
+									.setLocationY(latLng.longitude)
+									.setRadius(fragment.getRadius())
+									.setVibrationLength(Integer.valueOf(editTextVibrationLength.getText().toString()))
+									.setVibrationRepeatCount(
+													Integer.valueOf(editTextVibrationRepeatCount.getText().toString()))
+									.save();
+				}
+
+	    }
+	    finish();
 	    }
     });
 
@@ -92,12 +91,30 @@ public class CreateReminderActivity extends AppCompatActivity {
 		});
 
     findViewById(R.id.increaseRadius).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				fragment.increaseRadius(1);
-			}
-		});
+	    @Override
+	    public void onClick(View v) {
+		    fragment.increaseRadius(1);
+	    }
+    });
   }
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		if (alarm != null) {
+			EditText editTextName = (EditText) findViewById(R.id.alarmName);
+			editTextName.setText(alarm.getRawName(), EditText.BufferType.EDITABLE);
+
+			EditText editTextVibrationLength = (EditText) findViewById(R.id.alarmVibrationLength);
+			editTextVibrationLength.setText(
+							String.valueOf(alarm.getVibrationLength()), EditText.BufferType.EDITABLE);
+
+			EditText editTextVibrationRepeatCount =
+							(EditText) findViewById(R.id.alarmVibrationRepeatCount);
+			editTextVibrationRepeatCount.setText(
+							String.valueOf(alarm.getVibrationRepeatCount()), EditText.BufferType.EDITABLE);
+		}
+	}
 
 	private void addMapFragment(AlarmHelper alarm) {
 		FragmentManager manager = getSupportFragmentManager();
@@ -115,6 +132,36 @@ public class CreateReminderActivity extends AppCompatActivity {
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.menu_create_reminder, menu);
 		return true;
+	}
+
+	private void showReminderOptions() {
+		final ScrollView reminderOptions = (ScrollView) findViewById(R.id.reminderOptions);
+		if (optionsIsShowing) {
+			Log.d("locatedreminder", "optionsIsShowing");
+			optionsIsShowing = false;
+			View view = this.getCurrentFocus();
+			if (view != null) {
+				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+			}
+
+			reminderOptions.animate().setListener(new AnimatorListenerAdapter() {
+				@Override
+				public void onAnimationEnd(Animator animation) {
+					super.onAnimationEnd(animation);
+					reminderOptions.setVisibility(View.GONE);
+				}
+			}).translationY(-reminderOptions.getHeight());
+
+		} else {
+			Log.d("locatedreminder", "optionsIsHidden");
+			optionsIsShowing = true;
+
+			reminderOptions.setY(-reminderOptions.getHeight());
+			reminderOptions.setVisibility(View.VISIBLE);
+
+			reminderOptions.animate().translationY(0);
+		}
 	}
 
 	private void showSearchInput() {
@@ -170,44 +217,7 @@ public class CreateReminderActivity extends AppCompatActivity {
 			showSearchInput();
 			return true;
 		} else if (id == R.id.action_extend_infos) {
-			final RelativeLayout reminderOptions = (RelativeLayout) findViewById(R.id.reminderOptions);
-			if (optionsIsShowing) {
-				//reminderOptions.setVisibility(View.GONE);
-				Log.d("locationreminder", "optionsIsShowing");
-				optionsIsShowing = !optionsIsShowing;
-				View view = this.getCurrentFocus();
-				if (view != null) {
-					InputMethodManager imm =
-							(InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-					imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-				}
-				reminderOptions.animate().setListener(new AnimatorListenerAdapter() {
-					@Override
-					public void onAnimationEnd(Animator animation) {
-						super.onAnimationEnd(animation);
-						Log.d("locatedreminder", "onanimationend");
-						reminderOptions.setVisibility(View.GONE);
-					}
-				}).translationY(-reminderOptions.getHeight()).start();
-			} else {
-				//reminderOptions.setVisibility(View.VISIBLE);
-				reminderOptions.setY(-reminderOptions.getHeight());
-				reminderOptions.animate()
-						.setListener(new AnimatorListenerAdapter() {
-							@Override
-							public void onAnimationEnd(Animator animation) {
-								super.onAnimationEnd(animation);
-								Log.d("locatedreminder", "onanimationend");
-								optionsIsShowing = !optionsIsShowing;
-							}
-
-							@Override
-							public void onAnimationStart(Animator animation) {
-								super.onAnimationStart(animation);
-								reminderOptions.setVisibility(View.VISIBLE);
-							}
-						}).translationY(0).start();
-			}
+			showReminderOptions();
 			return true;
 		}
 

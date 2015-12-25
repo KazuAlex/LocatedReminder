@@ -38,17 +38,13 @@
 
     </LinearLayout>
 
-    <RelativeLayout
-        android:id="@+id/reminderOptions"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/buttons">
-
         <ScrollView
-            android:id="@+id/reminderOptionsScrollView"
+            android:id="@+id/reminderOptions"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#ffffff">
+            android:layout_above="@+id/buttons"
+            android:background="#ffffff"
+            android:visibility="invisible">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -67,10 +63,49 @@
                     android:layout_height="wrap_content"
                     android:editable="true" />
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Intensité de la vibration"/>
+
+                    <EditText
+                        android:id="@+id/alarmVibrationLength"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:editable="true"
+                        android:layout_marginLeft="10dp"
+                        android:text="5"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Nombre de répétition de la vibration"/>
+
+                    <EditText
+                        android:id="@+id/alarmVibrationRepeatCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:editable="true"
+                        android:layout_marginLeft="10dp"
+                        android:text="1"/>
+                </LinearLayout>
+
             </LinearLayout>
 
         </ScrollView>
-
-    </RelativeLayout>
 
 </RelativeLayout>
