@@ -29,8 +29,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
   static final String alarmSettingsTable = "alarm_settings";
 	static final String alarmSettingsAlarmId = "alarmId";
+  static final String alarmSettingsIsNotification = "alarmSettingsIsNotification";
 	static final String alarmSettingsVibrationRepeatCount = "alarmSettingsVibrationRepeatCount";
 	static final String alarmSettingsVibrationLength = "alarmSettingsVibrationLength";
+  static final String alarmSettingsIsSMS = "alarmSettingsIsSMS";
+  static final String alarmSettingsSMSContacts = "alarmSettingsSMSContacts";
+	static final String alarmSettingsSMSContent = "alarmSettingsSMSContent";
 
   static final String settingsTable = "settings";
   static final String settingName = "name";
@@ -94,8 +98,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					  updatedAtField + " DATETIME, " +
 					  deletedAtField + " DATETIME, " +
 					  alarmSettingsAlarmId + " INTEGER, " +
+					  alarmSettingsIsNotification + " INTEGER, " +
 					  alarmSettingsVibrationLength + " INTEGER, " +
-					  alarmSettingsVibrationRepeatCount + " INTEGER);";
+					  alarmSettingsVibrationRepeatCount + " INTEGER, " +
+					  alarmSettingsIsSMS + " INTEGER, " +
+					  alarmSettingsSMSContacts + " TEXT, " +
+					  alarmSettingsSMSContent + " TEXT);";
 
     String createTableSettings = "CREATE TABLE IF NOT EXISTS " + settingsTable + " (" +
 	          idField + " INTEGER PRIMARY KEY, " +

@@ -3,8 +3,8 @@ package fr.kazutoshi.locatedreminder.models;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -20,7 +20,7 @@ public class AlarmHelper extends GlobalHelper {
 		void onRemove();
 	}
 
-	private static HashSet<AlarmHelper> alarmInstances = new HashSet<>();
+	private static HashMap<Long, AlarmHelper> instances = new HashMap<>();
 
   private String name;
   private double locationX;
@@ -47,12 +47,12 @@ public class AlarmHelper extends GlobalHelper {
 
 	  this.settings = AlarmSettingHelper.getFromAlarmId(getId());
 	  if (settings == null)
-		  settings = new AlarmSettingHelper(-1, getId(), 1, 1);
+		  settings = new AlarmSettingHelper(-1, getId(), true, 5, 1, false, "", "");
 
 	  enabledListeners = new HashSet<>();
 	  removedListeners = new HashSet<>();
 
-    alarmInstances.add(this);
+    instances.put(getId(), this);
   }
 
 
@@ -157,7 +157,8 @@ public class AlarmHelper extends GlobalHelper {
   public AlarmHelper setEnabled(boolean on) {
     this.on = on;
 	  for (EnabledListener listener : enabledListeners)
-	    listener.onEnabledChange(on);
+	    if (listener != null)
+	      listener.onEnabledChange(on);
     return this;
   }
 
@@ -192,12 +193,11 @@ public class AlarmHelper extends GlobalHelper {
     if (id <= 0)
       return null;
 
-    if (alarmInstances.size() == 0)
+    if (instances.size() == 0)
       loadAlarms();
 
-    for (AlarmHelper alarm : alarmInstances)
-      if (alarm.getId() == id)
-        return alarm;
+    if (instances.containsKey(id))
+      return instances.get(id);
 
     return null;
   }
@@ -227,10 +227,10 @@ public class AlarmHelper extends GlobalHelper {
 	}
 
   public static HashSet<AlarmHelper> getAllAlarms() {
-    if (alarmInstances.size() == 0)
+    if (instances.size() == 0)
       loadAlarms();
 
-    return alarmInstances;
+    return new HashSet<>(instances.values());
   }
 
 
@@ -268,7 +268,7 @@ public class AlarmHelper extends GlobalHelper {
 
   public void delete() {
     if (getId() > 0) {
-	    alarmInstances.remove(this);
+	    instances.remove(this);
 	    dbHelper.getWritableDatabase().delete(DatabaseHelper.alarmsTable,
 					    DatabaseHelper.idField + " = ?", new String[]{String.valueOf(getId())});
 	    settings.delete();

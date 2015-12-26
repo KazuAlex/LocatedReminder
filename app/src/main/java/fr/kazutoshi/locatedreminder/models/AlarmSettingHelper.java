@@ -1,8 +1,16 @@
 package fr.kazutoshi.locatedreminder.models;
 
+import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract;
+import android.util.ArrayMap;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
@@ -13,14 +21,28 @@ public class AlarmSettingHelper extends GlobalHelper {
 	private static HashSet<AlarmSettingHelper> alarmSettingInstances = new HashSet<>();
 
 	private long alarmId;
+	private boolean isNotification;
 	private int vibrationLength;
 	private int vibrationRepeatCount;
+	private boolean isSMS;
+	private String SMSContacts;
+	private String SMSContent;
 
-	public AlarmSettingHelper(long id, long alarmId, int vibrationLength, int vibrationRepeatCount) {
+	public AlarmSettingHelper(long id, long alarmId,
+	                          boolean isNotification, int vibrationLength, int vibrationRepeatCount,
+	                          boolean isSMS, String SMSContacts, String SMSContent) {
 		setId(id);
 		this.alarmId = alarmId;
+		this.isNotification = isNotification;
 		this.vibrationLength = vibrationLength;
 		this.vibrationRepeatCount = vibrationRepeatCount;
+		this.isSMS = isSMS;
+		this.SMSContacts = SMSContacts;
+		if (SMSContacts == null)
+			this.SMSContacts = "";
+		this.SMSContent = SMSContent;
+		if (SMSContent == null)
+			this.SMSContent = "";
 
 		alarmSettingInstances.add(this);
 	}
@@ -31,6 +53,10 @@ public class AlarmSettingHelper extends GlobalHelper {
 		return alarmId;
 	}
 
+	public boolean isNotification() {
+		return isNotification;
+	}
+
 	public int getVibrationLength() {
 		return vibrationLength;
 	}
@@ -39,8 +65,25 @@ public class AlarmSettingHelper extends GlobalHelper {
 		return vibrationRepeatCount;
 	}
 
+	public boolean isSMS() {
+		return isSMS;
+	}
+
+	public String getSMSContacts() {
+		return SMSContacts;
+	}
+
+	public String getSMSContent() {
+		return SMSContent;
+	}
+
 
 	/** SETTERS */
+	public AlarmSettingHelper setIsNotification(boolean isNotification) {
+		this.isNotification = isNotification;
+		return this;
+	}
+
 	public AlarmSettingHelper setVibrationLength(int vibrationLength) {
 		this.vibrationLength = vibrationLength;
 		return this;
@@ -48,6 +91,21 @@ public class AlarmSettingHelper extends GlobalHelper {
 
 	public AlarmSettingHelper setVibrationRepeatCount(int vibrationRepeatCount) {
 		this.vibrationRepeatCount = vibrationRepeatCount;
+		return this;
+	}
+
+	public AlarmSettingHelper setIsSMS(boolean isSMS) {
+		this.isSMS = isSMS;
+		return this;
+	}
+
+	public AlarmSettingHelper setSMSContacts(String SMSContacts) {
+		this.SMSContacts = SMSContacts;
+		return this;
+	}
+
+	public AlarmSettingHelper setSMSContent(String SMSContent) {
+		this.SMSContent = SMSContent;
 		return this;
 	}
 
@@ -59,8 +117,12 @@ public class AlarmSettingHelper extends GlobalHelper {
 
 		Cursor cur = dbHelper.getReadableDatabase().rawQuery(
 						"SELECT " + DatabaseHelper.idField + ", " +
+						DatabaseHelper.alarmSettingsIsNotification + ", " +
 						DatabaseHelper.alarmSettingsVibrationLength + ", " +
-						DatabaseHelper.alarmSettingsVibrationRepeatCount +
+						DatabaseHelper.alarmSettingsVibrationRepeatCount + ", " +
+						DatabaseHelper.alarmSettingsIsSMS + ", " +
+						DatabaseHelper.alarmSettingsSMSContacts + ", " +
+						DatabaseHelper.alarmSettingsSMSContent +
 						" FROM " + DatabaseHelper.alarmSettingsTable +
 						" WHERE " + DatabaseHelper.deletedAtField + " IS NULL" +
 						" AND " + DatabaseHelper.alarmSettingsAlarmId + " = ?",
@@ -77,8 +139,12 @@ public class AlarmSettingHelper extends GlobalHelper {
 		AlarmSettingHelper settings = new AlarmSettingHelper(
 						cur.getLong(cur.getColumnIndex(DatabaseHelper.idField)),
 						id,
+						cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmSettingsIsNotification)) == 1,
 						cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmSettingsVibrationLength)),
-						cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmSettingsVibrationRepeatCount)));
+						cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmSettingsVibrationRepeatCount)),
+						cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmSettingsIsSMS)) == 1,
+						cur.getString(cur.getColumnIndex(DatabaseHelper.alarmSettingsSMSContacts)),
+						cur.getString(cur.getColumnIndex(DatabaseHelper.alarmSettingsSMSContent)));
 
 		cur.close();
 		return settings;
@@ -96,13 +162,21 @@ public class AlarmSettingHelper extends GlobalHelper {
 			values.put(DatabaseHelper.deletedAtField,
 							getDeletedAt() == null ? null : getDeletedAt().toString());
 			values.put(DatabaseHelper.alarmSettingsAlarmId, getAlarmId());
+			values.put(DatabaseHelper.alarmSettingsIsNotification, isNotification() ? 1 : 0);
 			values.put(DatabaseHelper.alarmSettingsVibrationLength, getVibrationLength());
 			values.put(DatabaseHelper.alarmSettingsVibrationRepeatCount, getVibrationRepeatCount());
+			values.put(DatabaseHelper.alarmSettingsIsSMS, isSMS() ? 1 : 0);
+			values.put(DatabaseHelper.alarmSettingsSMSContacts, getSMSContacts());
+			values.put(DatabaseHelper.alarmSettingsSMSContent, getSMSContent());
 			setId(dbHelper.getWritableDatabase().insert(DatabaseHelper.alarmSettingsTable, null, values));
 		} else if (getId() > 0) {
 			ContentValues values = new ContentValues();
+			values.put(DatabaseHelper.alarmSettingsIsNotification, isNotification() ? 1 : 0);
 			values.put(DatabaseHelper.alarmSettingsVibrationLength, getVibrationLength());
 			values.put(DatabaseHelper.alarmSettingsVibrationRepeatCount, getVibrationRepeatCount());
+			values.put(DatabaseHelper.alarmSettingsIsSMS, isSMS() ? 1 : 0);
+			values.put(DatabaseHelper.alarmSettingsSMSContacts, getSMSContacts());
+			values.put(DatabaseHelper.alarmSettingsSMSContent, getSMSContent());
 			setId(dbHelper.getWritableDatabase().update(DatabaseHelper.alarmSettingsTable, values,
 							DatabaseHelper.idField + " = ?", new String[] { String.valueOf(getId()) }));
 		}
@@ -116,5 +190,30 @@ public class AlarmSettingHelper extends GlobalHelper {
 			dbHelper.getWritableDatabase().delete(DatabaseHelper.alarmSettingsTable,
 							DatabaseHelper.idField + " = ?", new String[]{String.valueOf(getId())});
 		}
+	}
+
+
+
+	private ArrayMap<String, String> convertToContactsArray(Context context, String contacts) {
+		ArrayMap<String, String> contactsArray = new ArrayMap<>();
+
+		ContentResolver resolver = context.getContentResolver();
+		for(String phoneNumber : contacts.split(";")) {
+			Uri uri = Uri.withAppendedPath(
+							ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
+			Cursor cursor = resolver.query(
+							uri, new String[] {ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
+			if (cursor == null)
+				continue;
+			if (cursor.moveToFirst())
+				contactsArray.put(phoneNumber,
+								cursor.getString(cursor.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME)));
+			else
+				contactsArray.put(phoneNumber, phoneNumber);
+			if (!cursor.isClosed())
+				cursor.close();
+		}
+
+		return contactsArray;
 	}
 }

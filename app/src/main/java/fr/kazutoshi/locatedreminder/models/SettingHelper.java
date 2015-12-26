@@ -2,11 +2,23 @@ package fr.kazutoshi.locatedreminder.models;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.util.Log;
+
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by Alex on 13/12/2015.
  */
 public class SettingHelper extends GlobalHelper {
+
+	public interface ValueChangeListener {
+		void onValueChange(String value);
+	}
+
+  static HashMap<String, SettingHelper> instances = new HashMap<>();
+
+	HashSet<ValueChangeListener> valueChangeListeners = new HashSet<>();
 
   private String name;
   private String value;
@@ -15,6 +27,8 @@ public class SettingHelper extends GlobalHelper {
     setId(id);
     this.name = name;
 	  this.value = value;
+
+	  instances.put(name, this);
   }
 
   public String getName() {
@@ -32,12 +46,18 @@ public class SettingHelper extends GlobalHelper {
 
   public SettingHelper setValue(String value) {
     this.value = value;
+	  for (ValueChangeListener listener : valueChangeListeners)
+	    if (listener != null)
+		    listener.onValueChange(value);
     return this;
   }
 
 
 
 	public static SettingHelper getSetting(String name) {
+		if (instances.containsKey(name))
+			return instances.get(name);
+
 		SettingHelper setting;
 
 		Cursor cur = dbHelper.getReadableDatabase().rawQuery(
@@ -70,6 +90,15 @@ public class SettingHelper extends GlobalHelper {
 		if (setting == null)
 			return null;
 		return setting.getValue();
+	}
+
+
+
+	/* LISTENERS */
+	public SettingHelper addValueChangeListener(ValueChangeListener listener) {
+		if (listener != null)
+			valueChangeListeners.add(listener);
+		return this;
 	}
 
 

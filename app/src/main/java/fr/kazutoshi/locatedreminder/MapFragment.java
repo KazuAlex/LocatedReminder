@@ -42,9 +42,8 @@ public class MapFragment extends Fragment {
 
     private static android.support.v7.app.AlertDialog.Builder dialog;
 
-    public static void MarkerOptions(Context context, final Marker marker, final Circle circle) {
-      if (dialog == null)
-        dialog = new android.support.v7.app.AlertDialog.Builder(context);
+    public static void showMarkerOptions(Context context, final Marker marker, final Circle circle) {
+      dialog = new android.support.v7.app.AlertDialog.Builder(context);
 
       final CharSequence[] items = new CharSequence[] {
               REMOVE_ITEM
@@ -54,11 +53,12 @@ public class MapFragment extends Fragment {
         @Override
         public void onClick(DialogInterface dialog, int which) {
           if (items[which].equals(REMOVE_ITEM)) {
+	          marker.setVisible(false);
             marker.remove();
             circle.remove();
           }
         }
-      });
+      }).show();
 
     }
 
@@ -114,6 +114,16 @@ public class MapFragment extends Fragment {
     }
     marker = googleMap.addMarker(
         new MarkerOptions().position(latLng));
+
+	  googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+		  @Override
+		  public boolean onMarkerClick(Marker clickedMarker) {
+			  if (clickedMarker.equals(marker)) {
+				  Popup.showMarkerOptions(MapFragment.this.getActivity(), marker, radiusCircle);
+			  }
+			  return false;
+		  }
+	  });
     centerOnLatLng(latLng, zoom);
 
 	  String strokeColor = SettingHelper.getSettingValue("mapCircleStrokeColor");
@@ -176,7 +186,9 @@ public class MapFragment extends Fragment {
 
 
   public Marker getMarker() {
-      return marker;
+	  if (marker != null && marker.isVisible())
+		  return marker;
+	  return null;
   }
 
   public double getRadius() {

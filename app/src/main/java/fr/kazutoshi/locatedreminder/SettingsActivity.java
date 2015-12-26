@@ -236,6 +236,25 @@ public class SettingsActivity extends AppCompatActivity {
 			}).show();
 
 		}
+
+		public static void showEditSettingValue(final Context context, final SettingHelper setting) {
+			AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+			final EditText editTextNewValue = new EditText(context);
+			editTextNewValue.setText(setting.getValue());
+			dialog.setTitle("Modification des paramères")
+						.setView(editTextNewValue)
+						.setPositiveButton("Valider", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								setting.setValue(editTextNewValue.getText().toString()).save();
+							}
+						}).setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								dialog.dismiss();
+							}
+						}).show();
+		}
 	}
 
 	@Override
@@ -243,18 +262,72 @@ public class SettingsActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
-		TextView mapCircleColor = (TextView) findViewById(R.id.mapCircleColor);
-		String mapCircleStrokeColor = SettingHelper.getSettingValue("mapCircleStrokeColor");
+		final TextView mapCircleColor = (TextView) findViewById(R.id.mapCircleColor);
+		SettingHelper mapCircleStrokeColor = SettingHelper.getSetting("mapCircleStrokeColor");
+		String mapCircleStrokeColorString = "";
 		if (mapCircleStrokeColor == null)
-			mapCircleStrokeColor = "425C97";
-		else
-			mapCircleStrokeColor = mapCircleStrokeColor.substring(2);
-		mapCircleColor.setText("#" + mapCircleStrokeColor);
+			mapCircleStrokeColor = new SettingHelper(-1, "mapCircleStrokeColor", "FF425C97").save();
+
+		mapCircleStrokeColor.addValueChangeListener(new SettingHelper.ValueChangeListener() {
+			@Override
+			public void onValueChange(String value) {
+				String mapCircleStrokeColorString = "#" + value.substring(2);
+				mapCircleColor.setText(mapCircleStrokeColorString);
+			}
+		});
+		mapCircleStrokeColorString = "#" + mapCircleStrokeColor.getValue().substring(2);
+		mapCircleColor.setText(mapCircleStrokeColorString);
 		mapCircleColor.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Popup.showMapCircleColorOptions(SettingsActivity.this);
 			}
 		});
+
+		SettingHelper defaultAlarmVibrationLength =
+						SettingHelper.getSetting("defaultAlarmVibrationLength");
+		final TextView editTextDefaultAlarmVibrationLength =
+						(TextView) findViewById(R.id.defaultAlarmVibrationLength);
+		if (defaultAlarmVibrationLength == null)
+			defaultAlarmVibrationLength =
+							new SettingHelper(-1, "defaultAlarmVibrationLength", "5").save();
+		final SettingHelper finalDefaultAlarmVibrationLength = defaultAlarmVibrationLength;
+		defaultAlarmVibrationLength.addValueChangeListener(new SettingHelper.ValueChangeListener() {
+			@Override
+			public void onValueChange(String value) {
+				editTextDefaultAlarmVibrationLength.setText(value);
+			}
+		});
+		editTextDefaultAlarmVibrationLength.setText(defaultAlarmVibrationLength.getValue());
+		editTextDefaultAlarmVibrationLength.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Popup.showEditSettingValue(SettingsActivity.this, finalDefaultAlarmVibrationLength);
+			}
+		});
+
+		SettingHelper defaultAlarmVibrationRepeatCount =
+						SettingHelper.getSetting("defaultAlarmVibrationRepeatCount");
+		final TextView editTextDefaultAlarmVibrationRepeatCount =
+						(TextView) findViewById(R.id.defaultAlarmVibrationRepeatCount);
+		if (defaultAlarmVibrationRepeatCount == null)
+			defaultAlarmVibrationRepeatCount =
+							new SettingHelper(-1, "defaultAlarmVibrationRepeatCount", "1");
+		final SettingHelper finalDefaultAlarmVibrationRepeatCount = defaultAlarmVibrationRepeatCount;
+		defaultAlarmVibrationRepeatCount.addValueChangeListener(new SettingHelper.ValueChangeListener() {
+			@Override
+			public void onValueChange(String value) {
+				editTextDefaultAlarmVibrationRepeatCount.setText(value);
+			}
+		});
+		editTextDefaultAlarmVibrationRepeatCount.setText(defaultAlarmVibrationRepeatCount.getValue());
+		editTextDefaultAlarmVibrationRepeatCount.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Popup.showEditSettingValue(SettingsActivity.this, finalDefaultAlarmVibrationRepeatCount);
+			}
+		});
+
+
 	}
 }
