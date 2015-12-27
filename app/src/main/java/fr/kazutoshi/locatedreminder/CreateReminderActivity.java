@@ -68,7 +68,20 @@ public class CreateReminderActivity extends AppCompatActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == PICK_CONTACT && resultCode == RESULT_OK) {
 			Cursor cursor = getContentResolver().query(data.getData(), null, null, null, null);
-			//cursor.moveToFirst()
+      if (cursor == null)
+        return;
+
+      String str = "";
+			while (cursor.moveToNext()) {
+        if (!str.equals(""))
+          str += ";";
+        str += cursor.getString(cursor.getColumnIndex(
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+			}
+
+      Log.d("locatedreminder", "str contacts : " + str);
+
+      cursor.close();
 		}
 	}
 
