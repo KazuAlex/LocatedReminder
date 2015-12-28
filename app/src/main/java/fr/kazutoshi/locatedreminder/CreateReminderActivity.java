@@ -40,7 +40,7 @@ public class CreateReminderActivity extends AppCompatActivity {
 
 	private static class Popup {
 
-		public static void showContactsOptions(final Context context, final TextView textView) {
+		public static void showContactsOptions(final Context context) {
 			Log.d("locatedreminder", "showContactsOptions");
 			AlertDialog.Builder dialog = new AlertDialog.Builder(context);
 
@@ -49,8 +49,10 @@ public class CreateReminderActivity extends AppCompatActivity {
 			dialog.setTitle("Options").setItems(items, new DialogInterface.OnClickListener() {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
-					if (items[which].equals("Suppriemr")) {
-						textView.setText("");
+					if (items[which].equals("Supprimer")) {
+            TextView alarmSMSContacts =
+                (TextView)((Activity)context).findViewById(R.id.alarmSMSContacts);
+						alarmSMSContacts.setText("");
 					} else if (items[which].equals("Nouveau from contacts")) {
 						Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
 						intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
@@ -71,10 +73,15 @@ public class CreateReminderActivity extends AppCompatActivity {
       if (cursor == null)
         return;
 
-      String str = "";
+      final TextView alarmSMSContacts = (TextView) findViewById(R.id.alarmSMSContacts);
+
+      String str = alarmSMSContacts.getText().toString();
 			while (cursor.moveToNext()) {
+        if (str.contains(cursor.getString(cursor.getColumnIndex(
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))))
+          continue;
         if (!str.equals(""))
-          str += ";";
+          str += "; ";
         str += cursor.getString(cursor.getColumnIndex(
             ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 			}
@@ -82,6 +89,15 @@ public class CreateReminderActivity extends AppCompatActivity {
       Log.d("locatedreminder", "str contacts : " + str);
 
       cursor.close();
+
+      final String finalStr = str;
+
+      runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          alarmSMSContacts.setText(finalStr);
+        }
+      });
 		}
 	}
 
@@ -311,6 +327,6 @@ public class CreateReminderActivity extends AppCompatActivity {
 	}
 
 	public void showContacts(View v) {
-		Popup.showContactsOptions(CreateReminderActivity.this, textViewAlarmSMSContacts);
+		Popup.showContactsOptions(CreateReminderActivity.this);
 	}
 }

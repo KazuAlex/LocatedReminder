@@ -24,4 +24,5 @@ dependencies {
     compile 'com.android.support:design:22.2.1'
     compile 'com.google.android.gms:play-services:8.3.0'
     compile 'com.github.yukuku:ambilwarna:2.0.1'
+    compile 'org.apmem.tools:layouts:1.10@aar'
 }

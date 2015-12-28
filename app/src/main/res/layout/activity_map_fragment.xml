@@ -157,7 +157,9 @@
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:onClick="showContacts"
-                    android:text="Aucuns contacts"/>
+                    android:background="#ffffff"
+                    android:minHeight="30dp"
+                    android:layout_marginLeft="10dp"/>
 
             </LinearLayout>
 
@@ -178,7 +180,8 @@
                     android:inputType="number"
                     android:editable="true"
                     android:minLines="2"
-                    android:layout_marginLeft="10dp"/>
+                    android:layout_marginLeft="10dp"
+                    android:background="#ffffff"/>
 
             </LinearLayout>
 
