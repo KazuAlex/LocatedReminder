@@ -8,6 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Vibrator;
@@ -171,6 +174,11 @@ public class LocatedReminderService extends Service {
 											      .setContentIntent(pendingIntent);
 			      notificationManager.notify(0, builder.build());
 			      Vibrator v = (Vibrator) LocatedReminderService.this.getSystemService(VIBRATOR_SERVICE);
+
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+			      Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+			      r.play();
+
 			      for (int i = 0; i < alarm.getVibrationRepeatCount(); i++) {
 				      v.vibrate(new long[]{
 								      0,
