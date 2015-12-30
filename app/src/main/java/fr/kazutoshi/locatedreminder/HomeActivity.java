@@ -1,6 +1,9 @@
 package fr.kazutoshi.locatedreminder;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -9,6 +12,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -81,6 +86,128 @@ public class HomeActivity extends AppCompatActivity {
       new SettingHelper(-1, "locationUpdateUseNetwork", "0").save();
     if (SettingHelper.getSetting("locationUpdateUseGPS") == null)
       new SettingHelper(-1, "locationUpdateUseGPS", "1").save();
+
+
+	  if (SettingHelper.getSetting("doNotShowAgainStartingPopup") == null) {
+		  AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+
+		  LinearLayout layout = new LinearLayout(this);
+		  LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+						  ViewGroup.LayoutParams.MATCH_PARENT,
+						  ViewGroup.LayoutParams.WRAP_CONTENT);
+		  layout.setLayoutParams(params);
+		  layout.setOrientation(LinearLayout.VERTICAL);
+		  layout.setPadding(30, 30, 30, 30);
+
+
+		  LinearLayout layoutSettings = new LinearLayout(this);
+		  params = new LinearLayout.LayoutParams(
+						  ViewGroup.LayoutParams.MATCH_PARENT,
+						  ViewGroup.LayoutParams.WRAP_CONTENT);
+		  layoutSettings.setLayoutParams(params);
+		  layoutSettings.setOrientation(LinearLayout.HORIZONTAL);
+		  layoutSettings.setPadding(0, 20, 0, 20);
+		  layoutSettings.setGravity(Gravity.CENTER_VERTICAL);
+
+		  ImageView imageView = new ImageView(this);
+		  params = new LinearLayout.LayoutParams(100, 100);
+		  imageView.setLayoutParams(params);
+		  imageView.setImageResource(R.drawable.ic_settings_white_36dp);
+		  imageView.setBackgroundColor(Color.BLUE);
+
+		  TextView textView = new TextView(this);
+		  textView.setText("Vous permet de régler les paramètres par défaut des notifications " +
+						  "et les paramètres globaux de l'application");
+		  textView.setPadding(20, 0, 0, 0);
+
+		  layoutSettings.addView(imageView);
+		  layoutSettings.addView(textView);
+
+		  layout.addView(layoutSettings);
+
+
+		  LinearLayout layoutAlarm = new LinearLayout(this);
+		  params = new LinearLayout.LayoutParams(
+						  ViewGroup.LayoutParams.MATCH_PARENT,
+						  ViewGroup.LayoutParams.WRAP_CONTENT);
+		  layoutAlarm.setLayoutParams(params);
+		  layoutAlarm.setOrientation(LinearLayout.HORIZONTAL);
+		  layoutAlarm.setPadding(0, 20, 0, 20);
+		  layoutAlarm.setGravity(Gravity.CENTER_VERTICAL);
+
+		  textView = new TextView(this);
+		  textView.setText("Le bouton \"Ajouter un alarme\" vous permet de créer une alarme");
+
+		  layoutAlarm.addView(textView);
+
+		  layout.addView(layoutAlarm);
+
+
+		  layoutAlarm = new LinearLayout(this);
+		  params = new LinearLayout.LayoutParams(
+						  ViewGroup.LayoutParams.MATCH_PARENT,
+						  ViewGroup.LayoutParams.WRAP_CONTENT);
+		  layoutAlarm.setLayoutParams(params);
+		  layoutAlarm.setOrientation(LinearLayout.HORIZONTAL);
+		  layoutAlarm.setPadding(0, 20, 0, 20);
+
+		  textView = new TextView(this);
+		  textView.setText("Pour éditer une alarme, il suffit de cliquer dessus");
+
+		  layoutAlarm.addView(textView);
+
+		  layout.addView(layoutAlarm);
+
+
+		  layoutAlarm = new LinearLayout(this);
+		  params = new LinearLayout.LayoutParams(
+						  ViewGroup.LayoutParams.MATCH_PARENT,
+						  ViewGroup.LayoutParams.WRAP_CONTENT);
+		  layoutAlarm.setLayoutParams(params);
+		  layoutAlarm.setOrientation(LinearLayout.HORIZONTAL);
+		  layoutAlarm.setPadding(0, 20, 0, 20);
+		  layoutAlarm.setGravity(Gravity.CENTER_VERTICAL);
+
+		  imageView = new ImageView(this);
+		  params = new LinearLayout.LayoutParams(100, 100);
+		  imageView.setLayoutParams(params);
+		  imageView.setImageResource(R.drawable.ic_info_outline_white_36dp);
+		  imageView.setBackgroundColor(Color.BLUE);
+
+		  textView = new TextView(this);
+		  textView.setText("Vous permet de régler les paramètres spécifiques à l'alarme.\n" +
+						  "Vous pouvez aussi choisir (et paramétrer) si l'alarme doit vous envoyer " +
+						  "une notification ou envoyer un sms à des personnes en particulier.");
+		  textView.setPadding(20, 0, 0, 0);
+
+		  layoutAlarm.addView(imageView);
+		  layoutAlarm.addView(textView);
+
+		  layout.addView(layoutAlarm);
+
+
+
+
+		  dialog.setTitle("Information")
+						  .setView(layout)
+						  .setPositiveButton("Ne plus afficher", new DialogInterface.OnClickListener() {
+							  @Override
+							  public void onClick(DialogInterface dialog, int which) {
+								  new SettingHelper(-1, "doNotShowAgainStartingPopup", "").save();
+								  dialog.dismiss();
+							  }
+						  }).setNegativeButton("Fermer", new DialogInterface.OnClickListener() {
+			  @Override
+			  public void onClick(DialogInterface dialog, int which) {
+				  dialog.cancel();
+			  }
+		  }).show();
+	  }
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
   }
 
   @Override
