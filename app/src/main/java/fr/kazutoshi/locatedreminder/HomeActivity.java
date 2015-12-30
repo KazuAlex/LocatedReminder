@@ -71,14 +71,22 @@ public class HomeActivity extends AppCompatActivity {
 		  new SettingHelper(-1, "mapCircleFillColor", "1E425C97").save();
 	  if (SettingHelper.getSetting("defaultAlarmVibrationLength") == null)
 		  new SettingHelper(-1, "defaultAlarmVibrationLength", "5").save();
-	  if (SettingHelper.getSetting("defaultAlarmVibrationRepeatCount") == null)
-		  new SettingHelper(-1, "defaultAlarmVibrationRepeatCount", "1").save();
+    if (SettingHelper.getSetting("defaultAlarmVibrationRepeatCount") == null)
+      new SettingHelper(-1, "defaultAlarmVibrationRepeatCount", "1").save();
+    if (SettingHelper.getSetting("locationUpdateMinTime") == null)
+      new SettingHelper(-1, "locationUpdateMinTime", "4000").save();
+    if (SettingHelper.getSetting("locationUpdateMinDistance") == null)
+      new SettingHelper(-1, "locationUpdateMinDistance", "0").save();
+    if (SettingHelper.getSetting("locationUpdateUseNetwork") == null)
+      new SettingHelper(-1, "locationUpdateUseNetwork", "0").save();
+    if (SettingHelper.getSetting("locationUpdateUseGPS") == null)
+      new SettingHelper(-1, "locationUpdateUseGPS", "1").save();
   }
 
   @Override
   protected void onDestroy() {
-      super.onDestroy();
-      stopService(new Intent(this, LocatedReminderService.class));
+    super.onDestroy();
+    stopService(new Intent(this, LocatedReminderService.class));
   }
 
 
@@ -91,19 +99,19 @@ public class HomeActivity extends AppCompatActivity {
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-      // Handle action bar item clicks here. The action bar will
-      // automatically handle clicks on the Home/Up button, so long
-      // as you specify a parent activity in AndroidManifest.xml.
-      int id = item.getItemId();
+    // Handle action bar item clicks here. The action bar will
+    // automatically handle clicks on the Home/Up button, so long
+    // as you specify a parent activity in AndroidManifest.xml.
+    int id = item.getItemId();
 
-      //noinspection SimplifiableIfStatement
-      if (id == R.id.action_settings) {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
-        return true;
-      }
+    //noinspection SimplifiableIfStatement
+    if (id == R.id.action_settings) {
+      Intent intent = new Intent(this, SettingsActivity.class);
+      startActivity(intent);
+      return true;
+    }
 
-      return super.onOptionsItemSelected(item);
+    return super.onOptionsItemSelected(item);
   }
 
   /**

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+                xmlns:custom="http://schemas.android.com/apk/fr.kazutoshi.locatedreminder.view"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <com.google.android.gms.maps.MapView
@@ -52,23 +54,6 @@
             android:padding="10dp"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Switch
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:enabled="true" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="NOTIFICATION"/>
-
-            </LinearLayout>
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -80,6 +65,24 @@
                 android:layout_height="wrap_content"
                 android:editable="true"
                 android:singleLine="true" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Switch
+                    android:id="@+id/isNotification"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="NOTIFICATION"/>
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -149,17 +152,17 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Contacts"/>
+                    android:text="Contacts"
+                    android:onClick="showContacts"/>
 
-                <TextView
+                <fr.kazutoshi.locatedreminder.view.SMSContactsView
                     android:id="@+id/alarmSMSContacts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:onClick="showContacts"
                     android:background="#ffffff"
-                    android:minHeight="30dp"
-                    android:layout_marginLeft="10dp"/>
+                    android:layout_marginStart="10dp"/>
 
             </LinearLayout>
 
@@ -177,11 +180,8 @@
                     android:id="@+id/alarmSMSContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:editable="true"
                     android:minLines="2"
-                    android:layout_marginLeft="10dp"
-                    android:background="#ffffff"/>
+                    android:layout_marginStart="10dp"/>
 
             </LinearLayout>
 

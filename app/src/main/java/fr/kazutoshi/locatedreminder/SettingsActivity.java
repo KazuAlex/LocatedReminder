@@ -2,6 +2,7 @@ package fr.kazutoshi.locatedreminder;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -13,8 +14,10 @@ import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import fr.kazutoshi.locatedreminder.models.SettingHelper;
@@ -328,6 +331,93 @@ public class SettingsActivity extends AppCompatActivity {
 			}
 		});
 
+		SettingHelper useGPS = SettingHelper.getSetting("locationUpdateUseGPS");
+		final Switch switchUseGPS = (Switch) findViewById(R.id.switchUseGPS);
+		if (useGPS == null)
+			useGPS = new SettingHelper(-1, "locationUpdateUseGPS", "1");
+		useGPS.addValueChangeListener(new SettingHelper.ValueChangeListener() {
+			@Override
+			public void onValueChange(String value) {
+				switchUseGPS.setChecked(value.equals("1"));
+				stopService(new Intent(SettingsActivity.this, LocatedReminderService.class));
+				startService(new Intent(SettingsActivity.this, LocatedReminderService.class));
+			}
+		});
+		final SettingHelper finalUseGPS = useGPS;
+		switchUseGPS.setChecked(useGPS.getValue().equals("1"));
+		switchUseGPS.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				finalUseGPS.setValue(isChecked ? "1" : "0");
+				stopService(new Intent(SettingsActivity.this, LocatedReminderService.class));
+				startService(new Intent(SettingsActivity.this, LocatedReminderService.class));
+			}
+		});
 
+		SettingHelper useNetwork = SettingHelper.getSetting("locationUpdateUseNetwork");
+		final Switch switchUseNetwork = (Switch) findViewById(R.id.switchUseNetwork);
+		if (useNetwork == null)
+			useNetwork = new SettingHelper(-1, "locationUpdateUseNetwork", "1");
+		useNetwork.addValueChangeListener(new SettingHelper.ValueChangeListener() {
+			@Override
+			public void onValueChange(String value) {
+				switchUseNetwork.setChecked(value.equals("1"));
+				stopService(new Intent(SettingsActivity.this, LocatedReminderService.class));
+				startService(new Intent(SettingsActivity.this, LocatedReminderService.class));
+			}
+		});
+		final SettingHelper finalUseNetwork = useNetwork;
+		switchUseNetwork.setChecked(useNetwork.getValue().equals("1"));
+		switchUseNetwork.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				finalUseNetwork.setValue(isChecked ? "1" : "0");
+				stopService(new Intent(SettingsActivity.this, LocatedReminderService.class));
+				startService(new Intent(SettingsActivity.this, LocatedReminderService.class));
+			}
+		});
+
+		SettingHelper minTimeRefresh = SettingHelper.getSetting("locationUpdateMinTime");
+		final TextView editTextMinTimeRefresh = (TextView) findViewById(R.id.textViewMinTimeRefresh);
+		final LinearLayout layoutMinTimeRefresh =
+						(LinearLayout) findViewById(R.id.layoutMinTimeRefresh);
+		if (minTimeRefresh == null)
+			minTimeRefresh = new SettingHelper(-1, "locationUpdateMinTime", "4000");
+		final SettingHelper finalMinTimeRefresh = minTimeRefresh;
+		minTimeRefresh.addValueChangeListener(new SettingHelper.ValueChangeListener() {
+			@Override
+			public void onValueChange(String value) {
+				editTextMinTimeRefresh.setText(value);
+			}
+		});
+		editTextMinTimeRefresh.setText(minTimeRefresh.getValue());
+		layoutMinTimeRefresh.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Popup.showEditSettingValue(SettingsActivity.this, finalMinTimeRefresh);
+			}
+		});
+
+		SettingHelper minDistanceRefresh = SettingHelper.getSetting("locationUpdateMinDistance");
+		final TextView editTextMinDistanceRefresh =
+						(TextView) findViewById(R.id.textViewMinDistanceRefresh);
+		final LinearLayout layoutMinDistanceRefresh =
+						(LinearLayout) findViewById(R.id.layoutMinDistanceRefresh);
+		if (minDistanceRefresh == null)
+			minDistanceRefresh = new SettingHelper(-1, "locationUpdateMinDistance", "0");
+		final SettingHelper finalMinDistanceRefresh = minDistanceRefresh;
+		minDistanceRefresh.addValueChangeListener(new SettingHelper.ValueChangeListener() {
+			@Override
+			public void onValueChange(String value) {
+				editTextMinDistanceRefresh.setText(value);
+			}
+		});
+		editTextMinDistanceRefresh.setText(minDistanceRefresh.getValue());
+		layoutMinDistanceRefresh.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Popup.showEditSettingValue(SettingsActivity.this, finalMinDistanceRefresh);
+			}
+		});
 	}
 }

@@ -51,18 +51,20 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Vibrations"
+                android:text="Notifications / Vibrations"
                 android:id="@+id/textView2"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="10dp"/>
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="20dp"/>
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20px"
-                android:weightSum="2">
+                android:weightSum="2"
+                android:id="@+id/layoutDefaultAlarmVibrationLength">
 
                 <TextView
                     android:layout_width="0dp"
@@ -84,7 +86,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20px"
-                android:weightSum="2">
+                android:weightSum="2"
+                android:id="@+id/layoutDefaultAlarmVibrationRepeatCount">
 
                 <TextView
                     android:layout_width="0dp"
@@ -95,6 +98,105 @@
 
                 <TextView
                     android:id="@+id/defaultAlarmVibrationRepeatCount"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="18sp"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Géolocalisation"
+                android:id="@+id/textView3"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="20dp"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20px"
+                android:weightSum="2"
+                android:id="@+id/linearLayout">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="GPS"
+                    android:textSize="18sp"/>
+
+                <Switch
+                    android:id="@+id/switchUseGPS"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20px"
+                android:weightSum="2">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Network"
+                    android:textSize="18sp"/>
+
+                <Switch
+                    android:id="@+id/switchUseNetwork"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20px"
+                android:weightSum="2"
+                android:id="@+id/layoutMinTimeRefresh">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Fréquence"
+                    android:textSize="18sp"/>
+
+                <TextView
+                    android:id="@+id/textViewMinTimeRefresh"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="18sp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20px"
+                android:weightSum="2"
+                android:id="@+id/layoutMinDistanceRefresh">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Distance"
+                    android:textSize="18sp"/>
+
+                <TextView
+                    android:id="@+id/textViewMinDistanceRefresh"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

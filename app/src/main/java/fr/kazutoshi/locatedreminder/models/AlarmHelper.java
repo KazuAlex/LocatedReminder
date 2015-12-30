@@ -103,12 +103,28 @@ public class AlarmHelper extends GlobalHelper {
       return date != null;
   }
 
+	public boolean isNotification() {
+		return settings.isNotification();
+	}
+
 	public int getVibrationLength() {
 		return settings.getVibrationLength();
 	}
 
 	public int getVibrationRepeatCount() {
 		return settings.getVibrationRepeatCount();
+	}
+
+	public boolean isSMS() {
+		return settings.isSMS();
+	}
+
+	public String getSMSContacts() {
+		return settings.getSMSContacts();
+	}
+
+	public String getSMSContent() {
+		return settings.getSMSContent();
 	}
 
 
@@ -162,6 +178,11 @@ public class AlarmHelper extends GlobalHelper {
     return this;
   }
 
+  public AlarmHelper setIsNotification(boolean isNotification) {
+	  settings.setIsNotification(isNotification);
+	  return this;
+  }
+
 	public AlarmHelper setVibrationLength(int vibrationLength) {
 		settings.setVibrationLength(vibrationLength);
 		return this;
@@ -169,6 +190,21 @@ public class AlarmHelper extends GlobalHelper {
 
 	public AlarmHelper setVibrationRepeatCount(int vibrationRepeatCount) {
 		settings.setVibrationRepeatCount(vibrationRepeatCount);
+		return this;
+	}
+
+	public AlarmHelper setIsSMS(boolean isSMS) {
+		settings.setIsSMS(isSMS);
+		return this;
+	}
+
+	public AlarmHelper setSMSContacts(String SMSContacts) {
+		settings.setSMSContacts(SMSContacts);
+		return this;
+	}
+
+	public AlarmHelper setSMSContent(String SMSContent) {
+		settings.setSMSContent(SMSContent);
 		return this;
 	}
 
@@ -250,6 +286,7 @@ public class AlarmHelper extends GlobalHelper {
       values.put(DatabaseHelper.alarmDate, getDate() == null ? null : getDate().toString());
       values.put(DatabaseHelper.alarmEnabled, isEnabled() ? "1" : "0");
       setId(dbHelper.getWritableDatabase().insert(DatabaseHelper.alarmsTable, null, values));
+	    settings.setAlarmId(getId());
 	    settings.save();
     } else if (getId() > 0) {
       ContentValues values = new ContentValues();
