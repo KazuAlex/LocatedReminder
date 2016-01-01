@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Switch;
@@ -134,47 +135,48 @@ public class CreateReminderActivity extends AppCompatActivity {
     findViewById(R.id.addReminderButton).setOnClickListener(new View.OnClickListener() {
 	    @Override
 	    public void onClick(View v) {
-		    Marker marker = fragment.getMarker();
-		    if (marker != null) {
-			    LatLng latLng = marker.getPosition();
+		    final Marker marker = fragment.getMarker();
+		    if (marker == null) {
+			    AlertDialog.Builder dialog = new AlertDialog.Builder(CreateReminderActivity.this);
+			    dialog.setTitle("Quitter")
+							    .setMessage("Vous n'avez pas géolocalisé l'alerte. " +
+											    "Elle ne sera pas enregistrée.")
+							    .setPositiveButton("Quitter", new DialogInterface.OnClickListener() {
+								    @Override
+								    public void onClick(DialogInterface dialog, int which) {
+									    dialog.dismiss();
+									    finish();
+								    }
+							    }).setNegativeButton("Annuler", new DialogInterface.OnClickListener() {
+								    @Override
+								    public void onClick(DialogInterface dialog, int which) {
+									    dialog.dismiss();
+								    }
+							    }).show();
+		    } else {
 			    EditText editTextName = (EditText) findViewById(R.id.alarmName);
-			    Switch isNotification = (Switch) findViewById(R.id.isNotification);
-			    EditText editTextVibrationLength =
-							    (EditText) findViewById(R.id.alarmVibrationLength);
-			    EditText editTextVibrationRepeatCount =
-							    (EditText) findViewById(R.id.alarmVibrationRepeatCount);
-			    Switch isSMS = (Switch) findViewById(R.id.isSMS);
-			    SMSContactsView smsContactsView = (SMSContactsView) findViewById(R.id.alarmSMSContacts);
-			    EditText editTextSMSContent = (EditText) findViewById(R.id.alarmSMSContent);
-			    if (alarm == null) {
-				    alarm = new AlarmHelper(-1, editTextName.getText().toString(),
-								    latLng.latitude, latLng.longitude,
-								    fragment.getRadius(), true)
-								    .setIsNotification(isNotification.isChecked())
-								    .setVibrationLength(Integer.valueOf(editTextVibrationLength.getText().toString()))
-								    .setVibrationRepeatCount(
-												    Integer.valueOf(editTextVibrationRepeatCount.getText().toString()))
-								    .setIsSMS(isSMS.isChecked())
-								    .setSMSContacts(smsContactsView.getAllNumbersString())
-								    .setSMSContent(editTextSMSContent.getText().toString())
-								    .save();
+
+			    if (editTextName.getText().toString().isEmpty()) {
+				    AlertDialog.Builder dialog = new AlertDialog.Builder(CreateReminderActivity.this);
+				    dialog.setTitle("Infos")
+								    .setMessage("Vous n'avez pas rempli les infos nécessaires à l'alerte")
+								    .setPositiveButton("Continuer", new DialogInterface.OnClickListener() {
+									    @Override
+									    public void onClick(DialogInterface dialog, int which) {
+										    dialog.dismiss();
+										    save(marker);
+									    }
+								    }).setNegativeButton("Remplir les infos", new DialogInterface.OnClickListener() {
+									    @Override
+									    public void onClick(DialogInterface dialog, int which) {
+										    dialog.cancel();
+									    }
+								    }).show();
 			    } else {
-				    alarm.setName(editTextName.getText().toString())
-								    .setLocationX(latLng.latitude)
-								    .setLocationY(latLng.longitude)
-								    .setRadius(fragment.getRadius())
-								    .setIsNotification(isNotification.isChecked())
-								    .setVibrationLength(Integer.valueOf(editTextVibrationLength.getText().toString()))
-								    .setVibrationRepeatCount(
-												    Integer.valueOf(editTextVibrationRepeatCount.getText().toString()))
-								    .setIsSMS(isSMS.isChecked())
-								    .setSMSContacts(smsContactsView.getAllNumbersString())
-								    .setSMSContent(editTextSMSContent.getText().toString())
-								    .save();
+				    save(marker);
 			    }
 
 		    }
-		    finish();
 	    }
     });
 
@@ -202,6 +204,48 @@ public class CreateReminderActivity extends AppCompatActivity {
 		  }
 	  });
   }
+
+	private void save(Marker marker) {
+		LatLng latLng = marker.getPosition();
+		EditText editTextName = (EditText) findViewById(R.id.alarmName);
+		Switch isNotification = (Switch) findViewById(R.id.isNotification);
+		EditText editTextVibrationLength =
+						(EditText) findViewById(R.id.alarmVibrationLength);
+		EditText editTextVibrationRepeatCount =
+						(EditText) findViewById(R.id.alarmVibrationRepeatCount);
+		Switch isSMS = (Switch) findViewById(R.id.isSMS);
+		SMSContactsView smsContactsView = (SMSContactsView) findViewById(R.id.alarmSMSContacts);
+		EditText editTextSMSContent = (EditText) findViewById(R.id.alarmSMSContent);
+
+		if (alarm == null) {
+			alarm = new AlarmHelper(-1, editTextName.getText().toString(),
+							latLng.latitude, latLng.longitude,
+							fragment.getRadius(), true)
+							.setIsNotification(isNotification.isChecked())
+							.setVibrationLength(Integer.valueOf(editTextVibrationLength.getText().toString()))
+							.setVibrationRepeatCount(
+											Integer.valueOf(editTextVibrationRepeatCount.getText().toString()))
+							.setIsSMS(isSMS.isChecked())
+							.setSMSContacts(smsContactsView.getAllNumbersString())
+							.setSMSContent(editTextSMSContent.getText().toString())
+							.save();
+		} else {
+			alarm.setName(editTextName.getText().toString())
+							.setLocationX(latLng.latitude)
+							.setLocationY(latLng.longitude)
+							.setRadius(fragment.getRadius())
+							.setIsNotification(isNotification.isChecked())
+							.setVibrationLength(Integer.valueOf(editTextVibrationLength.getText().toString()))
+							.setVibrationRepeatCount(
+											Integer.valueOf(editTextVibrationRepeatCount.getText().toString()))
+							.setIsSMS(isSMS.isChecked())
+							.setSMSContacts(smsContactsView.getAllNumbersString())
+							.setSMSContent(editTextSMSContent.getText().toString())
+							.save();
+		}
+
+		finish();
+	}
 
 	@Override
 	protected void onStart() {
