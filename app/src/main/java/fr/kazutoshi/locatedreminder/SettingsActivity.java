@@ -9,8 +9,6 @@ import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
-import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
