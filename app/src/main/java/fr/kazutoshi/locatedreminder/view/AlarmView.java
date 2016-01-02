@@ -62,7 +62,7 @@ public class AlarmView extends RelativeLayout {
 		layoutRemove.setLayoutParams(params);
 
 		remove = new ImageView(context);
-		params = new LayoutParams(50, 50);
+		params = new LayoutParams(100, 100);
 		remove.setLayoutParams(params);
 		remove.setImageResource(R.drawable.ic_delete_black_24dp);
 		remove.setOnClickListener(new OnClickListener() {

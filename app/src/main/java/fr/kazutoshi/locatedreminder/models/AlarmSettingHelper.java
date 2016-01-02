@@ -79,6 +79,11 @@ public class AlarmSettingHelper extends GlobalHelper {
 
 
 	/** SETTERS */
+	public AlarmSettingHelper setAlarmId(long id) {
+		alarmId = id;
+		return this;
+	}
+
 	public AlarmSettingHelper setIsNotification(boolean isNotification) {
 		this.isNotification = isNotification;
 		return this;

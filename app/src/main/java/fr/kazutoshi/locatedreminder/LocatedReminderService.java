@@ -8,11 +8,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.telephony.SmsManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -20,6 +24,7 @@ import java.util.ArrayList;
 import fr.kazutoshi.locatedreminder.models.AlarmHelper;
 import fr.kazutoshi.locatedreminder.models.DatabaseHelper;
 import fr.kazutoshi.locatedreminder.models.GlobalHelper;
+import fr.kazutoshi.locatedreminder.models.SettingHelper;
 
 /**
  * Created by Alex on 15/12/2015.
@@ -48,8 +53,23 @@ public class LocatedReminderService extends Service {
     Log.d("locatedreminder", "start service");
     locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
     listener = new LocationListener();
-    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 4000, 0, listener);
-    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 4000, 0, listener);
+	  String useNetwork = SettingHelper.getSettingValue("locationUpdateUseNetwork");
+	  String useGPS = SettingHelper.getSettingValue("locationUpdateUseGPS");
+	  String minTimeRefresh = SettingHelper.getSettingValue("locationUpdateMinTime");
+	  String minDistanceRefresh = SettingHelper.getSettingValue("locationUpdateMinDistance");
+	  if (useNetwork != null && useNetwork.equals("1")) {
+		  locationManager.requestLocationUpdates(
+						  LocationManager.NETWORK_PROVIDER,
+						  minTimeRefresh == null ? 4000 : Integer.parseInt(minTimeRefresh),
+						  minDistanceRefresh == null ? 0 : Integer.parseInt(minDistanceRefresh),
+						  listener);
+	  }
+	  if (useGPS != null && useGPS.equals("1")) {
+		  locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+						  minTimeRefresh == null ? 4000 : Integer.parseInt(minTimeRefresh),
+						  minDistanceRefresh == null ? 0 : Integer.parseInt(minDistanceRefresh),
+						  listener);
+	  }
     return START_NOT_STICKY;
   }
 
@@ -138,21 +158,27 @@ public class LocatedReminderService extends Service {
       intent.putExtra("Provider", location.getProvider());
       sendBroadcast(intent);*/
       for (AlarmHelper alarm : AlarmHelper.getAllAlarms()) {
-	      if (alarm.isEnabled() && distance(alarm.getLocationX(), alarm.getLocationY(),
-					      location.getLatitude(), location.getLongitude()) <= alarm.getRadius()) {
-		      NotificationManager notificationManager =
-						      (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		      Intent intent = new Intent(LocatedReminderService.this, HomeActivity.class);
-		      PendingIntent pendingIntent = PendingIntent.getActivity(
-						      LocatedReminderService.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		      NotificationCompat.Builder builder =
-						      new NotificationCompat.Builder(LocatedReminderService.this)
-										      .setSmallIcon(R.drawable.notification_template_icon_bg)
-										      .setContentTitle("Alarme")
-										      .setContentText(alarm.getName())
-										      .setContentIntent(pendingIntent);
-		      notificationManager.notify(0, builder.build());
-		      Vibrator v = (Vibrator) LocatedReminderService.this.getSystemService(VIBRATOR_SERVICE);
+	      if (alarm.isEnabled()) {
+		      if (alarm.isNotification() && distance(alarm.getLocationX(), alarm.getLocationY(),
+						      location.getLatitude(), location.getLongitude()) <= alarm.getRadius()) {
+			      NotificationManager notificationManager =
+							      (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+			      Intent intent = new Intent(LocatedReminderService.this, HomeActivity.class);
+			      PendingIntent pendingIntent = PendingIntent.getActivity(
+							      LocatedReminderService.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+			      NotificationCompat.Builder builder =
+							      new NotificationCompat.Builder(LocatedReminderService.this)
+											      .setSmallIcon(R.drawable.notification_template_icon_bg)
+											      .setContentTitle("Alarme")
+											      .setContentText(alarm.getName())
+											      .setContentIntent(pendingIntent);
+			      notificationManager.notify(0, builder.build());
+			      Vibrator v = (Vibrator) LocatedReminderService.this.getSystemService(VIBRATOR_SERVICE);
+
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+			      Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+			      r.play();
+
 			      for (int i = 0; i < alarm.getVibrationRepeatCount(); i++) {
 				      v.vibrate(new long[]{
 								      0,
@@ -161,11 +187,23 @@ public class LocatedReminderService extends Service {
 				      }, -1);
 				      try {
 					      synchronized (v) {
-					        v.wait(alarm.getVibrationLength() * 100 * 2);
+						      v.wait(alarm.getVibrationLength() * 100 * 2);
 					      }
 				      } catch (InterruptedException e) {
 				      }
 			      }
+		      }
+
+		      if (alarm.isSMS()) {
+			      SmsManager smsManager = SmsManager.getDefault();
+			      String contactsString = alarm.getSMSContacts();
+			      if (!contactsString.isEmpty() && !alarm.getSMSContent().isEmpty()) {
+				      String[] contacts = contactsString.split(";");
+				      for (String contact : contacts)
+					      smsManager.sendTextMessage(contact, null, alarm.getSMSContent(), null, null);
+			      }
+		      }
+
 		      alarm.off().save();
 	      }
       }

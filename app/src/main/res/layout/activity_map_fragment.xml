@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+                xmlns:custom="http://schemas.android.com/apk/fr.kazutoshi.locatedreminder.view"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <com.google.android.gms.maps.MapView
@@ -16,12 +18,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" >
+        android:layout_centerHorizontal="true"
+        android:gravity="center_vertical">
 
-        <Button
+        <ImageView
             android:id="@+id/decreaseRadius"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="#3e50b5"
+            android:src="@drawable/ic_remove_circle_outline_white_24dp"
             android:text="-" />
 
         <Button
@@ -30,10 +35,12 @@
             android:layout_height="wrap_content"
             android:text="@string/addReminder" />
 
-        <Button
+        <ImageView
             android:id="@+id/increaseRadius"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="#3e50b5"
+            android:src="@drawable/ic_add_circle_outline_white_24dp"
             android:text="+" />
 
     </LinearLayout>
@@ -52,23 +59,6 @@
             android:padding="10dp"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Switch
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:enabled="true" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="NOTIFICATION"/>
-
-            </LinearLayout>
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -80,6 +70,24 @@
                 android:layout_height="wrap_content"
                 android:editable="true"
                 android:singleLine="true" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Switch
+                    android:id="@+id/isNotification"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="NOTIFICATION"/>
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -146,20 +154,36 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <TextView
+                <LinearLayout
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Contacts"/>
+                    android:id="@+id/layoutContactsHeader"
+                    android:gravity="center_vertical">
 
-                <TextView
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Contacts"
+                        android:onClick="showContacts"/>
+
+                    <Button
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ajouter"
+                        android:id="@+id/buttonAddContact"
+                        android:onClick="showContacts"/>
+                </LinearLayout>
+
+                <fr.kazutoshi.locatedreminder.view.SMSContactsView
                     android:id="@+id/alarmSMSContacts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:clickable="true"
                     android:onClick="showContacts"
                     android:background="#ffffff"
-                    android:minHeight="30dp"
-                    android:layout_marginLeft="10dp"/>
+                    android:layout_marginStart="10dp"/>
 
             </LinearLayout>
 
@@ -177,11 +201,8 @@
                     android:id="@+id/alarmSMSContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:editable="true"
                     android:minLines="2"
-                    android:layout_marginLeft="10dp"
-                    android:background="#ffffff"/>
+                    android:layout_marginStart="10dp"/>
 
             </LinearLayout>
 
