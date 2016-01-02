@@ -4,12 +4,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.Spanned;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
@@ -263,6 +266,11 @@ public class SettingsActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 
+    ActionBar actionBar = getSupportActionBar();
+    if (actionBar != null) {
+      actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
 		final TextView mapCircleColor = (TextView) findViewById(R.id.mapCircleColor);
 		SettingHelper mapCircleStrokeColor = SettingHelper.getSetting("mapCircleStrokeColor");
 		String mapCircleStrokeColorString = "";
@@ -418,4 +426,16 @@ public class SettingsActivity extends AppCompatActivity {
 			}
 		});
 	}
+
+	@Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case android.R.id.home:
+        this.finish();
+        return true;
+      default:
+        return super.onOptionsItemSelected(item);
+    }
+
+  }
 }

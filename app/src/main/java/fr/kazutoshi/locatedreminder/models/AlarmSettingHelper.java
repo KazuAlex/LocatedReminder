@@ -21,6 +21,7 @@ public class AlarmSettingHelper extends GlobalHelper {
 	private static HashSet<AlarmSettingHelper> alarmSettingInstances = new HashSet<>();
 
 	private long alarmId;
+	private boolean isIn;
 	private boolean isNotification;
 	private int vibrationLength;
 	private int vibrationRepeatCount;
@@ -28,11 +29,12 @@ public class AlarmSettingHelper extends GlobalHelper {
 	private String SMSContacts;
 	private String SMSContent;
 
-	public AlarmSettingHelper(long id, long alarmId,
+	public AlarmSettingHelper(long id, long alarmId, boolean isIn,
 	                          boolean isNotification, int vibrationLength, int vibrationRepeatCount,
 	                          boolean isSMS, String SMSContacts, String SMSContent) {
 		setId(id);
 		this.alarmId = alarmId;
+    this.isIn = isIn;
 		this.isNotification = isNotification;
 		this.vibrationLength = vibrationLength;
 		this.vibrationRepeatCount = vibrationRepeatCount;
@@ -52,6 +54,14 @@ public class AlarmSettingHelper extends GlobalHelper {
 	public long getAlarmId() {
 		return alarmId;
 	}
+
+  public boolean isIn() {
+    return isIn;
+  }
+
+  public boolean isOut() {
+    return !isIn;
+  }
 
 	public boolean isNotification() {
 		return isNotification;
@@ -83,6 +93,19 @@ public class AlarmSettingHelper extends GlobalHelper {
 		alarmId = id;
 		return this;
 	}
+
+  public AlarmSettingHelper setIsIn(boolean isIn) {
+    this.isIn = isIn;
+    return this;
+  }
+
+  public AlarmSettingHelper setIn() {
+    return setIsIn(true);
+  }
+
+  public AlarmSettingHelper setOut() {
+    return setIsIn(false);
+  }
 
 	public AlarmSettingHelper setIsNotification(boolean isNotification) {
 		this.isNotification = isNotification;
@@ -122,6 +145,7 @@ public class AlarmSettingHelper extends GlobalHelper {
 
 		Cursor cur = dbHelper.getReadableDatabase().rawQuery(
 						"SELECT " + DatabaseHelper.idField + ", " +
+            DatabaseHelper.alarmSettingsIsIn + ", " +
 						DatabaseHelper.alarmSettingsIsNotification + ", " +
 						DatabaseHelper.alarmSettingsVibrationLength + ", " +
 						DatabaseHelper.alarmSettingsVibrationRepeatCount + ", " +
@@ -144,6 +168,7 @@ public class AlarmSettingHelper extends GlobalHelper {
 		AlarmSettingHelper settings = new AlarmSettingHelper(
 						cur.getLong(cur.getColumnIndex(DatabaseHelper.idField)),
 						id,
+            cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmSettingsIsIn)) == 1,
 						cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmSettingsIsNotification)) == 1,
 						cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmSettingsVibrationLength)),
 						cur.getInt(cur.getColumnIndex(DatabaseHelper.alarmSettingsVibrationRepeatCount)),
@@ -167,6 +192,7 @@ public class AlarmSettingHelper extends GlobalHelper {
 			values.put(DatabaseHelper.deletedAtField,
 							getDeletedAt() == null ? null : getDeletedAt().toString());
 			values.put(DatabaseHelper.alarmSettingsAlarmId, getAlarmId());
+      values.put(DatabaseHelper.alarmSettingsIsIn, isIn() ? "1" : "0");
 			values.put(DatabaseHelper.alarmSettingsIsNotification, isNotification() ? 1 : 0);
 			values.put(DatabaseHelper.alarmSettingsVibrationLength, getVibrationLength());
 			values.put(DatabaseHelper.alarmSettingsVibrationRepeatCount, getVibrationRepeatCount());
@@ -176,6 +202,7 @@ public class AlarmSettingHelper extends GlobalHelper {
 			setId(dbHelper.getWritableDatabase().insert(DatabaseHelper.alarmSettingsTable, null, values));
 		} else if (getId() > 0) {
 			ContentValues values = new ContentValues();
+      values.put(DatabaseHelper.alarmSettingsIsIn, isIn() ? "1" : "0");
 			values.put(DatabaseHelper.alarmSettingsIsNotification, isNotification() ? 1 : 0);
 			values.put(DatabaseHelper.alarmSettingsVibrationLength, getVibrationLength());
 			values.put(DatabaseHelper.alarmSettingsVibrationRepeatCount, getVibrationRepeatCount());

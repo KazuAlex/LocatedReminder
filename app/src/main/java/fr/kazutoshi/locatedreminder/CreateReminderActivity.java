@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.provider.ContactsContract;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -124,6 +125,11 @@ public class CreateReminderActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_map_fragment);
 
+		ActionBar actionBar = getSupportActionBar();
+		if (actionBar != null) {
+			actionBar.setDisplayHomeAsUpEnabled(true);
+		}
+
 
 	  if (getIntent().hasExtra("ALARM_ID"))
 		  alarm = AlarmHelper.getFromId(getIntent().getLongExtra("ALARM_ID", 0));
@@ -198,11 +204,11 @@ public class CreateReminderActivity extends AppCompatActivity {
 
 	  textViewAlarmSMSContacts = (SMSContactsView) findViewById(R.id.alarmSMSContacts);
 	  textViewAlarmSMSContacts.setOnClickListener(new View.OnClickListener() {
-		  @Override
-		  public void onClick(View v) {
-			  Log.d("locatedreminder", "onclick alarmSMSContacts");
-		  }
-	  });
+      @Override
+      public void onClick(View v) {
+        Log.d("locatedreminder", "onclick alarmSMSContacts");
+      }
+    });
   }
 
 	private void save(Marker marker) {
@@ -216,11 +222,13 @@ public class CreateReminderActivity extends AppCompatActivity {
 		Switch isSMS = (Switch) findViewById(R.id.isSMS);
 		SMSContactsView smsContactsView = (SMSContactsView) findViewById(R.id.alarmSMSContacts);
 		EditText editTextSMSContent = (EditText) findViewById(R.id.alarmSMSContent);
+    Switch switchInOut = (Switch) findViewById(R.id.switchInOut);
 
 		if (alarm == null) {
 			alarm = new AlarmHelper(-1, editTextName.getText().toString(),
 							latLng.latitude, latLng.longitude,
 							fragment.getRadius(), true)
+              .setIsIn(switchInOut.isChecked())
 							.setIsNotification(isNotification.isChecked())
 							.setVibrationLength(Integer.valueOf(editTextVibrationLength.getText().toString()))
 							.setVibrationRepeatCount(
@@ -234,6 +242,7 @@ public class CreateReminderActivity extends AppCompatActivity {
 							.setLocationX(latLng.latitude)
 							.setLocationY(latLng.longitude)
 							.setRadius(fragment.getRadius())
+              .setIsIn(switchInOut.isChecked())
 							.setIsNotification(isNotification.isChecked())
 							.setVibrationLength(Integer.valueOf(editTextVibrationLength.getText().toString()))
 							.setVibrationRepeatCount(
@@ -264,7 +273,7 @@ public class CreateReminderActivity extends AppCompatActivity {
 			EditText editTextVibrationRepeatCount =
 							(EditText) findViewById(R.id.alarmVibrationRepeatCount);
 			editTextVibrationRepeatCount.setText(
-							String.valueOf(alarm.getVibrationRepeatCount()), EditText.BufferType.EDITABLE);
+          String.valueOf(alarm.getVibrationRepeatCount()), EditText.BufferType.EDITABLE);
 
 			Switch isSMS = (Switch) findViewById(R.id.isSMS);
 			isSMS.setChecked(alarm.isSMS());
@@ -272,6 +281,9 @@ public class CreateReminderActivity extends AppCompatActivity {
 			smsContactsView.addContacts(alarm.getSMSContacts());
 			EditText smsContent = (EditText) findViewById(R.id.alarmSMSContent);
 			smsContent.setText(alarm.getSMSContent());
+
+      Switch switchInOut = (Switch) findViewById(R.id.switchInOut);
+      switchInOut.setChecked(alarm.isIn());
 		} else {
 			EditText editTextVibrationLength = (EditText) findViewById(R.id.alarmVibrationLength);
 			editTextVibrationLength.setText(SettingHelper.getSettingValue("defaultAlarmVibrationLength"));
@@ -372,21 +384,20 @@ public class CreateReminderActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-
-		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_search) {
-			showSearchInput();
-			return true;
-		} else if (id == R.id.action_extend_infos) {
-			showReminderOptions();
-			return true;
+		switch (item.getItemId()) {
+      case android.R.id.home:
+        this.finish();
+        return true;
+			case R.id.action_search:
+				showSearchInput();
+				return true;
+      case R.id.action_extend_infos:
+        showReminderOptions();
+        return true;
+      default:
+        return super.onOptionsItemSelected(item);
 		}
 
-		return super.onOptionsItemSelected(item);
 	}
 
 	public void finish() {

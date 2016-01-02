@@ -47,7 +47,7 @@ public class AlarmHelper extends GlobalHelper {
 
 	  this.settings = AlarmSettingHelper.getFromAlarmId(getId());
 	  if (settings == null)
-		  settings = new AlarmSettingHelper(-1, getId(), true, 5, 1, false, "", "");
+		  settings = new AlarmSettingHelper(-1, getId(), true, true, 5, 1, false, "", "");
 
 	  enabledListeners = new HashSet<>();
 	  removedListeners = new HashSet<>();
@@ -101,6 +101,10 @@ public class AlarmHelper extends GlobalHelper {
 
   public boolean isTimed() {
       return date != null;
+  }
+
+  public boolean isIn() {
+    return settings.isIn();
   }
 
 	public boolean isNotification() {
@@ -176,6 +180,19 @@ public class AlarmHelper extends GlobalHelper {
 	    if (listener != null)
 	      listener.onEnabledChange(on);
     return this;
+  }
+
+  public AlarmHelper setIsIn(boolean isIn) {
+    settings.setIsIn(isIn);
+    return this;
+  }
+
+  public AlarmHelper setIn() {
+    return setIsIn(true);
+  }
+
+  public AlarmHelper setOut() {
+    return setIsIn(false);
   }
 
   public AlarmHelper setIsNotification(boolean isNotification) {

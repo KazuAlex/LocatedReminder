@@ -29,6 +29,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
   static final String alarmSettingsTable = "alarm_settings";
 	static final String alarmSettingsAlarmId = "alarmId";
+  static final String alarmSettingsIsIn = "alarmIsIn";
   static final String alarmSettingsIsNotification = "alarmSettingsIsNotification";
 	static final String alarmSettingsVibrationRepeatCount = "alarmSettingsVibrationRepeatCount";
 	static final String alarmSettingsVibrationLength = "alarmSettingsVibrationLength";
@@ -98,6 +99,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 					  updatedAtField + " DATETIME, " +
 					  deletedAtField + " DATETIME, " +
 					  alarmSettingsAlarmId + " INTEGER, " +
+            alarmSettingsIsIn + " INTEGER, " +
 					  alarmSettingsIsNotification + " INTEGER, " +
 					  alarmSettingsVibrationLength + " INTEGER, " +
 					  alarmSettingsVibrationRepeatCount + " INTEGER, " +
