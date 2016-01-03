@@ -159,8 +159,10 @@ public class LocatedReminderService extends Service {
       sendBroadcast(intent);*/
       for (AlarmHelper alarm : AlarmHelper.getAllAlarms()) {
 	      if (alarm.isEnabled()) {
-		      if (alarm.isNotification() && distance(alarm.getLocationX(), alarm.getLocationY(),
-						      location.getLatitude(), location.getLongitude()) <= alarm.getRadius()) {
+		      if (alarm.isNotification() && ((alarm.isIn() && distance(alarm.getLocationX(), alarm.getLocationY(),
+						      location.getLatitude(), location.getLongitude()) <= alarm.getRadius()) ||
+                  !alarm.isIn() && distance(alarm.getLocationX(), alarm.getLocationY(),
+                  location.getLatitude(), location.getLongitude()) > alarm.getRadius())) {
 			      NotificationManager notificationManager =
 							      (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 			      Intent intent = new Intent(LocatedReminderService.this, HomeActivity.class);
