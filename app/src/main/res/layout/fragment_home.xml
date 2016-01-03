@@ -6,12 +6,21 @@
     tools:context="fr.kazutoshi.locatedreminder.HomeActivity$AlarmsFragment">
 
 
-    <Button
+    <LinearLayout
         android:id="@+id/newAlarmButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Ajouter une alarme"
-        android:layout_alignParentBottom="true" />
+        android:background="#3e50b5"
+        android:padding="5dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_alarm_add_white_24dp"/>
+
+    </LinearLayout>
 
     <ScrollView
         android:id="@+id/scrollView"
